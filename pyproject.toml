@@ -14,6 +14,14 @@ dev = [
     "pytest>=8.4.2",
 ]
 
+[project.scripts]
+gnuradio-companion = "gnuradio_companion.main:main"
+gnuradio-compiler = "gnuradio_companion.compiler:main"
+
+# Shortcut entrypoints
+grc = "gnuradio_companion.main:main"
+grcc = "gnuradio_companion.compiler:main"
+
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
