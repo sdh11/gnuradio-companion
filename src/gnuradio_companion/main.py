@@ -37,6 +37,23 @@ LOG_LEVELS = {
 try:
     from gnuradio import gr
 except ImportError as ex:
+
+    class Dummy():
+        def version(self):
+            return "0.0.0"
+        def major_version(self):
+            return "0"
+        def api_version(self):
+            return "0"
+        def minor_version(self):
+            return "0"
+        def prefs(self):
+            return {}
+        def prefix(self):
+            return "."
+
+    gr = Dummy()
+
     # Throw a new exception with more information
     print("Cannot find GNU Radio! (Have you sourced the environment file?)", file=sys.stderr)
 
@@ -53,7 +70,7 @@ except ImportError as ex:
         messagebox.showerror("Cannot find GNU Radio", "Cannot find GNU Radio!")
 
     # Throw the new exception
-    raise Exception("Cannot find GNU Radio!") from None
+    # raise Exception("Cannot find GNU Radio!") from None
 
 
 # Enable Logging
@@ -87,7 +104,7 @@ def run_gtk(args, log):
     platform = Platform(
         version=gr.version(),
         version_parts=(gr.major_version(), gr.api_version(),
-                       gr.minor_version()),
+           gr.minor_version()),
         prefs=gr.prefs(),
         install_prefix=gr.prefix()
     )
@@ -267,8 +284,8 @@ def main():
             log.warning(e)
 
     # Argument parsing
-    parser = argparse.ArgumentParser(
-        description=VERSION_AND_DISCLAIMER_TEMPLATE % gr.version())
+    parser = argparse.ArgumentParser()
+        # description=VERSION_AND_DISCLAIMER_TEMPLATE % gr.version())
     parser.add_argument('flow_graphs', nargs='*')
 
     # Custom Configurations
@@ -321,3 +338,6 @@ def main():
             run_qt(args, log)
         else:
             run_gtk(args, log)
+
+if __name__ == "__main__":
+    main()
