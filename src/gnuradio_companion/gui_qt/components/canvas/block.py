@@ -23,6 +23,7 @@ class Block(CoreBlock):
     """
     A block. Accesses its graphical representation with self.gui.
     """
+
     @classmethod
     def make_cls_with_base(cls, super_cls):
         name = super_cls.__name__
@@ -51,14 +52,14 @@ class Block(CoreBlock):
         self.gui.create_shapes_and_labels()
 
     def update_bus_logic(self):
-        for direc in {'source', 'sink'}:
-            if direc == 'source':
+        for direc in {"source", "sink"}:
+            if direc == "source":
                 ports = self.sources
                 ports_gui = self.filter_bus_port(self.sources)
             else:
                 ports = self.sinks
                 ports_gui = self.filter_bus_port(self.sinks)
-            if 'bus' in map(lambda a: a.dtype, ports):
+            if "bus" in map(lambda a: a.dtype, ports):
                 for port in ports_gui:
                     self.parent_flowgraph.gui.removeItem(port.gui)
         super(self.__class__, self).update_bus_logic()
@@ -99,14 +100,16 @@ class GUIBlock(QGraphicsItem):
 
     def create_shapes_and_labels(self):
         qsettings = QApplication.instance().qsettings
-        self.force_show_id = qsettings.value('grc/show_block_ids', type=bool)
-        self.hide_variables = qsettings.value('grc/hide_variables', type=bool)
-        self.hide_disabled_blocks = qsettings.value('grc/hide_disabled_blocks', type=bool)
-        self.snap_to_grid = qsettings.value('grc/snap_to_grid', type=bool)
-        self.show_complexity = qsettings.value('grc/show_complexity', type=bool)
-        self.show_block_comments = qsettings.value('grc/show_block_comments', type=bool)
-        self.show_param_expr = qsettings.value('grc/show_param_expr', type=bool)
-        self.show_param_val = qsettings.value('grc/show_param_val', type=bool)
+        self.force_show_id = qsettings.value("grc/show_block_ids", type=bool)
+        self.hide_variables = qsettings.value("grc/hide_variables", type=bool)
+        self.hide_disabled_blocks = qsettings.value(
+            "grc/hide_disabled_blocks", type=bool
+        )
+        self.snap_to_grid = qsettings.value("grc/snap_to_grid", type=bool)
+        self.show_complexity = qsettings.value("grc/show_complexity", type=bool)
+        self.show_block_comments = qsettings.value("grc/show_block_comments", type=bool)
+        self.show_param_expr = qsettings.value("grc/show_param_expr", type=bool)
+        self.show_param_val = qsettings.value("grc/show_param_val", type=bool)
         self.prepareGeometryChange()
         self.font.setBold(True)
 
@@ -116,25 +119,28 @@ class GUIBlock(QGraphicsItem):
         # Check if we need to increase the height to fit all the ports
         for key, item in self.core.params.items():
             value = item.value
-            if (value is not None and item.hide == "none") or (item.dtype == 'id' and self.force_show_id):
+            if (value is not None and item.hide == "none") or (
+                item.dtype == "id" and self.force_show_id
+            ):
                 i += 20
 
         self.height = i
 
         def get_min_height_for_ports(ports):
             min_height = (
-                2 * Constants.PORT_BORDER_SEPARATION +
-                len(ports) * Constants.PORT_SEPARATION
+                2 * Constants.PORT_BORDER_SEPARATION
+                + len(ports) * Constants.PORT_SEPARATION
             )
             # If any of the ports are bus ports - make the min height larger
             if any([p.dtype == "bus" for p in ports]):
                 min_height = (
-                    2 * Constants.PORT_BORDER_SEPARATION +
-                    sum(
+                    2 * Constants.PORT_BORDER_SEPARATION
+                    + sum(
                         port.gui.height + Constants.PORT_SPACING
                         for port in ports
                         if port.dtype == "bus"
-                    ) - Constants.PORT_SPACING
+                    )
+                    - Constants.PORT_SPACING
                 )
 
             else:
@@ -154,9 +160,11 @@ class GUIBlock(QGraphicsItem):
         for key, item in self.core.params.items():
             name = item.name
             value = item.value
-            if (value is not None and item.hide == "none") or (item.dtype == 'id' and self.force_show_id):
+            if (value is not None and item.hide == "none") or (
+                item.dtype == "id" and self.force_show_id
+            ):
                 if len(value) > LONG_VALUE:
-                    value = value[:LONG_VALUE - 3] + '...'
+                    value = value[: LONG_VALUE - 3] + "..."
 
                 value_label = item.options[value] if value in item.options else value
                 full_line = name + ": " + value_label
@@ -171,8 +179,9 @@ class GUIBlock(QGraphicsItem):
 
         if self.show_complexity and self.core.key == "options":
             complexity = flow_graph_complexity.calculate(self.parent)
-            self.markups.append('Complexity: {num} bal'.format(
-                num=Utils.num_to_str(complexity)))
+            self.markups.append(
+                "Complexity: {num} bal".format(num=Utils.num_to_str(complexity))
+            )
 
         if self.show_block_comments and self.core.comment:
             self.markups.append(self.core.comment)
@@ -248,7 +257,9 @@ class GUIBlock(QGraphicsItem):
         self.core.states["coordinate"] = (self.x(), self.y())
 
     def paint(self, painter, option, widget):
-        if (self.hide_variables and (self.core.is_variable or self.core.is_import)) or (self.hide_disabled_blocks and not self.core.enabled):
+        if (self.hide_variables and (self.core.is_variable or self.core.is_import)) or (
+            self.hide_disabled_blocks and not self.core.enabled
+        ):
             return
 
         painter.setRenderHint(QPainter.Antialiasing)
@@ -308,7 +319,9 @@ class GUIBlock(QGraphicsItem):
 
             # Include the value defined by the user (after evaluation)
             if not is_evaluated or self.show_param_val or not self.show_param_expr:
-                display_value += item.options[value] if value in item.options else value  # TODO: pretty_print
+                display_value += (
+                    item.options[value] if value in item.options else value
+                )  # TODO: pretty_print
 
             # Include the expression that was evaluated to get the value
             if is_evaluated and self.show_param_expr:
@@ -320,10 +333,12 @@ class GUIBlock(QGraphicsItem):
                     display_value = expr_string
 
             if len(display_value) > LONG_VALUE:
-                display_value = display_value[:LONG_VALUE - 3] + '...'
+                display_value = display_value[: LONG_VALUE - 3] + "..."
 
             value_label = display_value
-            if (value is not None and item.hide == "none") or (item.dtype == 'id' and self.force_show_id):
+            if (value is not None and item.hide == "none") or (
+                item.dtype == "id" and self.force_show_id
+            ):
                 if item.is_valid():
                     painter.setPen(QPen(1))
                 else:
@@ -362,7 +377,10 @@ class GUIBlock(QGraphicsItem):
     def boundingRect(self):
         # TODO: Comments should be a separate QGraphicsItem
         return QRectF(
-            -2.5, -2.5, self.width + 5 + self.markups_width, self.height + 5 + self.markups_height
+            -2.5,
+            -2.5,
+            self.width + 5 + self.markups_width,
+            self.height + 5 + self.markups_height,
         )
 
     def set_states(self, states):
@@ -376,7 +394,9 @@ class GUIBlock(QGraphicsItem):
         super(self.__class__, self).mousePressEvent(e)
         log.debug(f"{self} clicked")
         url_prefix = str(self.core.parent_platform.config.wiki_block_docs_url_prefix)
-        QApplication.instance().WikiTab.setURL(QUrl(url_prefix + self.core.label.replace(" ", "_")))
+        QApplication.instance().WikiTab.setURL(
+            QUrl(url_prefix + self.core.label.replace(" ", "_"))
+        )
 
         self.moveToTop()
 
@@ -399,7 +419,11 @@ class GUIBlock(QGraphicsItem):
         super(self.__class__, self).mouseDoubleClickEvent(e)
 
     def itemChange(self, change, value):
-        if change == QGraphicsItem.ItemPositionChange and self.scene() and self.snap_to_grid:
+        if (
+            change == QGraphicsItem.ItemPositionChange
+            and self.scene()
+            and self.snap_to_grid
+        ):
             grid_size = 10
             value.setX(round(value.x() / grid_size) * grid_size)
             value.setY(round(value.y() / grid_size) * grid_size)

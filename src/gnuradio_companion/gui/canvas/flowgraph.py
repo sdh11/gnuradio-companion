@@ -6,7 +6,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 """
 
-
 import ast
 import functools
 import random
@@ -85,7 +84,7 @@ class FlowGraph(CoreFlowgraph, Drawable):
         self._elements_to_draw = []
         self._external_updaters = {}
 
-    def _get_unique_id(self, base_id=''):
+    def _get_unique_id(self, base_id=""):
         """
         Get a unique id starting with the base id.
 
@@ -97,7 +96,7 @@ class FlowGraph(CoreFlowgraph, Drawable):
         """
         block_ids = set(b.name for b in self.blocks)
         for index in count():
-            block_id = '{}_{}'.format(base_id, index)
+            block_id = "{}_{}".format(base_id, index)
             if block_id not in block_ids:
                 break
         return block_id
@@ -109,16 +108,19 @@ class FlowGraph(CoreFlowgraph, Drawable):
             editor = self._external_updaters[target]
         else:
             config = self.parent_platform.config
-            editor = (find_executable(config.editor) or
-                      Dialogs.choose_editor(parent, config))  # todo: pass in parent
+            editor = find_executable(config.editor) or Dialogs.choose_editor(
+                parent, config
+            )  # todo: pass in parent
             if not editor:
                 return
             updater = functools.partial(
-                self.handle_external_editor_change, target=target)
+                self.handle_external_editor_change, target=target
+            )
             editor = self._external_updaters[target] = ExternalEditor(
                 editor=editor,
-                name=target[0], value=param.get_value(),
-                callback=functools.partial(GLib.idle_add, updater)
+                name=target[0],
+                value=param.get_value(),
+                callback=functools.partial(GLib.idle_add, updater),
             )
             editor.start()
         try:
@@ -126,9 +128,10 @@ class FlowGraph(CoreFlowgraph, Drawable):
         except Exception as e:
             # Problem launching the editor. Need to select a new editor.
             Messages.send(
-                '>>> Error opening an external editor. Please select a different editor.\n')
+                ">>> Error opening an external editor. Please select a different editor.\n"
+            )
             # Reset the editor to force the user to select a new one.
-            self.parent_platform.config.editor = ''
+            self.parent_platform.config.editor = ""
             self.remove_external_editor(target=target)
 
     def remove_external_editor(self, target=None, param=None):
@@ -163,15 +166,19 @@ class FlowGraph(CoreFlowgraph, Drawable):
         v_adj = scroll_pane.get_vadjustment()
         if coor is None:
             coor = (
-                int(random.uniform(.25, .75) *
-                    h_adj.get_page_size() + h_adj.get_value()),
-                int(random.uniform(.25, .75) *
-                    v_adj.get_page_size() + v_adj.get_value()),
+                int(
+                    random.uniform(0.25, 0.75) * h_adj.get_page_size()
+                    + h_adj.get_value()
+                ),
+                int(
+                    random.uniform(0.25, 0.75) * v_adj.get_page_size()
+                    + v_adj.get_value()
+                ),
             )
         # get the new block
         block = self.new_block(key)
         block.coordinate = coor
-        block.params['id'].set_value(id)
+        block.params["id"].set_value(id)
         Actions.ELEMENT_CREATE()
         return id
 
@@ -240,10 +247,12 @@ class FlowGraph(CoreFlowgraph, Drawable):
             x_min = min(x, x_min)
             y_min = min(y, y_min)
         # get connections between selected blocks
-        connections = list(filter(
-            lambda c: c.source_block in blocks and c.sink_block in blocks,
-            self.connections,
-        ))
+        connections = list(
+            filter(
+                lambda c: c.source_block in blocks and c.sink_block in blocks,
+                self.connections,
+            )
+        )
         clipboard = (
             (x_min, y_min),
             [block.export_data() for block in blocks],
@@ -272,15 +281,15 @@ class FlowGraph(CoreFlowgraph, Drawable):
         # create blocks
         pasted_blocks = {}
         for block_n in blocks_n:
-            block_key = block_n.get('id')
-            if block_key == 'options':
+            block_key = block_n.get("id")
+            if block_key == "options":
                 continue
 
-            block_name = block_n.get('name')
+            block_name = block_n.get("name")
             # Verify whether a block with this name exists before adding it
             if block_name in (blk.name for blk in self.blocks):
                 block_n = block_n.copy()
-                block_n['name'] = self._get_unique_id(block_name)
+                block_n["name"] = self._get_unique_id(block_name)
 
             block = self.new_block(block_key)
             if not block:
@@ -290,10 +299,13 @@ class FlowGraph(CoreFlowgraph, Drawable):
             pasted_blocks[block_name] = block  # that is before any rename
 
             block.move((x_off, y_off))
-            while any(Utils.align_to_grid(block.coordinate) == Utils.align_to_grid(other.coordinate)
-                      for other in self.blocks if other is not block):
-                block.move((Constants.CANVAS_GRID_SIZE,
-                           Constants.CANVAS_GRID_SIZE))
+            while any(
+                Utils.align_to_grid(block.coordinate)
+                == Utils.align_to_grid(other.coordinate)
+                for other in self.blocks
+                if other is not block
+            ):
+                block.move((Constants.CANVAS_GRID_SIZE, Constants.CANVAS_GRID_SIZE))
                 # shift all following blocks
                 x_off += Constants.CANVAS_GRID_SIZE
                 y_off += Constants.CANVAS_GRID_SIZE
@@ -322,7 +334,9 @@ class FlowGraph(CoreFlowgraph, Drawable):
         Returns:
             true for change
         """
-        return any([sb.type_controller_modify(direction) for sb in self.selected_blocks()])
+        return any(
+            [sb.type_controller_modify(direction) for sb in self.selected_blocks()]
+        )
 
     def port_controller_modify_selected(self, direction):
         """
@@ -334,7 +348,9 @@ class FlowGraph(CoreFlowgraph, Drawable):
         Returns:
             true for changed
         """
-        return any([sb.port_controller_modify(direction) for sb in self.selected_blocks()])
+        return any(
+            [sb.port_controller_modify(direction) for sb in self.selected_blocks()]
+        )
 
     def change_state_selected(self, new_state):
         """
@@ -371,8 +387,10 @@ class FlowGraph(CoreFlowgraph, Drawable):
             min_x, min_y = min(min_x, x), min(min_y, y)
 
         # Sanitize delta_coordinate so that blocks don't move to negative coordinate
-        delta_coordinate = max(
-            delta_coordinate[0], -min_x), max(delta_coordinate[1], -min_y)
+        delta_coordinate = (
+            max(delta_coordinate[0], -min_x),
+            max(delta_coordinate[1], -min_y),
+        )
 
         # Move selected blocks
         for selected_block in blocks:
@@ -446,8 +464,7 @@ class FlowGraph(CoreFlowgraph, Drawable):
         # rotate the blocks around the center point
         for selected_block in self.selected_blocks():
             x, y = selected_block.coordinate
-            x, y = Utils.get_rotated_coordinate(
-                (x - ctr_x, y - ctr_y), rotation)
+            x, y = Utils.get_rotated_coordinate((x - ctr_x, y - ctr_y), rotation)
             selected_block.coordinate = (x + ctr_x, y + ctr_y)
         return True
 
@@ -543,9 +560,9 @@ class FlowGraph(CoreFlowgraph, Drawable):
             cr.restore()
 
         draw_multi_select_rectangle = (
-            self.mouse_pressed and
-            (not self.selected_elements or self.drawing_area.ctrl_mask) and
-            not self._new_connection
+            self.mouse_pressed
+            and (not self.selected_elements or self.drawing_area.ctrl_mask)
+            and not self._new_connection
         )
         if draw_multi_select_rectangle:
             x1, y1 = self.press_coor
@@ -584,7 +601,9 @@ class FlowGraph(CoreFlowgraph, Drawable):
             # allows us to move entire selected groups of elements
             if not new_selections:
                 selected_elements = set()
-            elif self.drawing_area.ctrl_mask or self.selected_elements.isdisjoint(new_selections):
+            elif self.drawing_area.ctrl_mask or self.selected_elements.isdisjoint(
+                new_selections
+            ):
                 selected_elements = new_selections
 
             if self._old_selected_port:
@@ -595,9 +614,14 @@ class FlowGraph(CoreFlowgraph, Drawable):
                 self._new_selected_port.force_show_label = True
 
         else:  # called from a mouse release
-            if not self.element_moved and (not self.selected_elements or self.drawing_area.ctrl_mask) and not self._new_connection:
+            if (
+                not self.element_moved
+                and (not self.selected_elements or self.drawing_area.ctrl_mask)
+                and not self._new_connection
+            ):
                 selected_elements = self.what_is_selected(
-                    self.coordinate, self.press_coor)
+                    self.coordinate, self.press_coor
+                )
 
         # this selection and the last were ports, try to connect them
         if self.make_connection():
@@ -650,8 +674,7 @@ class FlowGraph(CoreFlowgraph, Drawable):
 
         if selected_port and selected_port.is_source:
             selected.remove(selected_port.parent_block)
-            self._new_connection = DummyConnection(
-                selected_port, coordinate=coor)
+            self._new_connection = DummyConnection(selected_port, coordinate=coor)
             self.drawing_area.queue_draw()
         # update selected ports
         if selected_port is not self._new_selected_port:
@@ -823,7 +846,10 @@ class FlowGraph(CoreFlowgraph, Drawable):
     def _handle_mouse_motion_drag(self, coordinate):
         redraw = False
         # remove the connection if selected in drag event
-        if len(self.selected_elements) == 1 and self.get_selected_element().is_connection:
+        if (
+            len(self.selected_elements) == 1
+            and self.get_selected_element().is_connection
+        ):
             Actions.ELEMENT_DELETE()
             redraw = True
 
@@ -841,9 +867,14 @@ class FlowGraph(CoreFlowgraph, Drawable):
             dX, dY = x - X, y - Y
 
             if Actions.TOGGLE_SNAP_TO_GRID.get_active() or self.drawing_area.mod1_mask:
-                dX, dY = int(round(dX / Constants.CANVAS_GRID_SIZE)
-                             ), int(round(dY / Constants.CANVAS_GRID_SIZE))
-                dX, dY = dX * Constants.CANVAS_GRID_SIZE, dY * Constants.CANVAS_GRID_SIZE
+                dX, dY = (
+                    int(round(dX / Constants.CANVAS_GRID_SIZE)),
+                    int(round(dY / Constants.CANVAS_GRID_SIZE)),
+                )
+                dX, dY = (
+                    dX * Constants.CANVAS_GRID_SIZE,
+                    dY * Constants.CANVAS_GRID_SIZE,
+                )
             else:
                 dX, dY = int(round(dX)), int(round(dY))
 
@@ -865,6 +896,5 @@ class FlowGraph(CoreFlowgraph, Drawable):
         extent = 10000000, 10000000, 0, 0
         cmps = (min, min, max, max)
         for sub_extent in sub_extents():
-            extent = [cmp(xy, e_xy)
-                      for cmp, xy, e_xy in zip(cmps, extent, sub_extent)]
+            extent = [cmp(xy, e_xy) for cmp, xy, e_xy in zip(cmps, extent, sub_extent)]
         return tuple(extent)

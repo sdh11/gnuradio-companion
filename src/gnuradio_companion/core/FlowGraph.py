@@ -12,7 +12,7 @@ import types
 import logging
 import shlex
 from operator import methodcaller, attrgetter
-from typing import (List, Set, Optional, Iterator, Iterable, Tuple, Union, OrderedDict)
+from typing import List, Set, Optional, Iterator, Iterable, Tuple, Union, OrderedDict
 
 from . import Messages
 from .base import Element
@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 
 
 class FlowGraph(Element):
-
     is_flow_graph = True
 
     def __init__(self, parent: Element):
@@ -38,7 +37,7 @@ class FlowGraph(Element):
             the flow graph object
         """
         Element.__init__(self, parent)
-        self.options_block: Block = self.parent_platform.make_block(self, 'options')
+        self.options_block: Block = self.parent_platform.make_block(self, "options")
 
         self.blocks = [self.options_block]
         self.connections = set()
@@ -47,7 +46,7 @@ class FlowGraph(Element):
         self.namespace = {}
         self.imported_names = []
 
-        self.grc_file_path = ''
+        self.grc_file_path = ""
 
     def __str__(self) -> str:
         return f"FlowGraph - {self.get_option('title')}({self.get_option('id')})"
@@ -59,7 +58,9 @@ class FlowGraph(Element):
         Returns:
             a list of import statements
         """
-        return [block.templates.render('imports') for block in self.iter_enabled_blocks()]
+        return [
+            block.templates.render("imports") for block in self.iter_enabled_blocks()
+        ]
 
     def get_variables(self) -> List[str]:
         """
@@ -69,9 +70,10 @@ class FlowGraph(Element):
         Returns:
             a sorted list of variable blocks in order of dependency (indep -> dep)
         """
-        variables = [block for block in self.iter_enabled_blocks()
-                     if block.is_variable]
-        return expr_utils.sort_objects(variables, attrgetter('name'), methodcaller('get_var_make'))
+        variables = [block for block in self.iter_enabled_blocks() if block.is_variable]
+        return expr_utils.sort_objects(
+            variables, attrgetter("name"), methodcaller("get_var_make")
+        )
 
     def get_parameters(self) -> List[Element]:
         """
@@ -80,8 +82,7 @@ class FlowGraph(Element):
         Returns:
             a list of parameterized variables
         """
-        parameters = [b for b in self.iter_enabled_blocks()
-                      if b.key == 'parameter']
+        parameters = [b for b in self.iter_enabled_blocks() if b.key == "parameter"]
         return parameters
 
     def _get_snippets(self) -> List[Element]:
@@ -91,7 +92,7 @@ class FlowGraph(Element):
         Returns:
             a list of code snippets
         """
-        return [b for b in self.iter_enabled_blocks() if b.key == 'snippet']
+        return [b for b in self.iter_enabled_blocks() if b.key == "snippet"]
 
     def get_snippets_dict(self, section=None) -> List[dict]:
         """
@@ -110,13 +111,13 @@ class FlowGraph(Element):
         output = []
         for snip in snippets:
             d = {}
-            sect = snip.params['section'].value
-            d['section'] = sect
-            d['priority'] = snip.params['priority'].value
-            d['lines'] = snip.params['code'].value.splitlines()
-            d['def'] = 'def snipfcn_{}(self):'.format(snip.name)
-            d['call'] = 'snipfcn_{}(tb)'.format(snip.name)
-            if not len(d['lines']):
+            sect = snip.params["section"].value
+            d["section"] = sect
+            d["priority"] = snip.params["priority"].value
+            d["lines"] = snip.params["code"].value.splitlines()
+            d["def"] = "def snipfcn_{}(self):".format(snip.name)
+            d["call"] = "snipfcn_{}(tb)".format(snip.name)
+            if not len(d["lines"]):
                 Messages.send_warning("Ignoring empty snippet from canvas")
             else:
                 if not section or sect == section:
@@ -124,7 +125,7 @@ class FlowGraph(Element):
 
         # Sort by descending priority
         if section:
-            output = sorted(output, key=lambda x: x['priority'], reverse=True)
+            output = sorted(output, key=lambda x: x["priority"], reverse=True)
 
         return output
 
@@ -132,15 +133,16 @@ class FlowGraph(Element):
         """
         Get a list of all ControlPort monitors
         """
-        monitors = [b for b in self.iter_enabled_blocks()
-                    if 'ctrlport_monitor' in b.key]
+        monitors = [
+            b for b in self.iter_enabled_blocks() if "ctrlport_monitor" in b.key
+        ]
         return monitors
 
     def get_python_modules(self) -> Iterator[Tuple[str, str]]:
         """Iterate over custom code block ID and Source"""
         for block in self.iter_enabled_blocks():
-            if block.key == 'epy_module':
-                yield block.name, block.params['source_code'].get_value()
+            if block.key == "epy_module":
+                yield block.name, block.params["source_code"].get_value()
 
     def iter_enabled_blocks(self) -> Iterator[Element]:
         """
@@ -189,11 +191,11 @@ class FlowGraph(Element):
         return self.options_block.params[key].get_evaluated()
 
     def get_run_command(self, file_path, split=False) -> Union[str, List[str]]:
-        run_command = self.get_option('run_command')
+        run_command = self.get_option("run_command")
         try:
             run_command = run_command.format(
-                python=shlex.quote(sys.executable),
-                filename=shlex.quote(file_path))
+                python=shlex.quote(sys.executable), filename=shlex.quote(file_path)
+            )
             return shlex.split(run_command) if split else run_command
         except Exception as e:
             raise ValueError(f"Can't parse run command {repr(run_command)}: {e}")
@@ -215,7 +217,7 @@ class FlowGraph(Element):
         for block in self.blocks:
             if block.name == name:
                 return block
-        raise KeyError(f'No block with name {repr(name)}')
+        raise KeyError(f"No block with name {repr(name)}")
 
     def get_elements(self) -> List[Element]:
         elements = list(self.blocks)
@@ -245,7 +247,9 @@ class FlowGraph(Element):
                 # this is ok behavior, unfortunately we could be hiding other import bugs
                 pass
             except Exception:
-                log.exception(f"Failed to evaluate import expression \"{expr}\"", exc_info=True)
+                log.exception(
+                    f'Failed to evaluate import expression "{expr}"', exc_info=True
+                )
                 pass
         return namespace
 
@@ -256,7 +260,9 @@ class FlowGraph(Element):
                 exec(expr, module.__dict__)
                 namespace[id] = module
             except Exception:
-                log.exception(f'Failed to evaluate expression in module {id}', exc_info=True)
+                log.exception(
+                    f"Failed to evaluate expression in module {id}", exc_info=True
+                )
                 pass
         return namespace
 
@@ -267,11 +273,13 @@ class FlowGraph(Element):
         np = {}  # params don't know each other
         for parameter_block in self.get_parameters():
             try:
-                value = eval(
-                    parameter_block.params['value'].to_code(), namespace)
+                value = eval(parameter_block.params["value"].to_code(), namespace)
                 np[parameter_block.name] = value
             except Exception:
-                log.exception(f'Failed to evaluate parameter block {parameter_block.name}', exc_info=True)
+                log.exception(
+                    f"Failed to evaluate parameter block {parameter_block.name}",
+                    exc_info=True,
+                )
                 pass
         namespace.update(np)  # Merge param namespace
         return namespace
@@ -283,15 +291,17 @@ class FlowGraph(Element):
         for variable_block in self.get_variables():
             try:
                 variable_block.rewrite()
-                value = eval(variable_block.value, namespace,
-                             variable_block.namespace)
+                value = eval(variable_block.value, namespace, variable_block.namespace)
                 namespace[variable_block.name] = value
                 # rewrite on subsequent blocks depends on an updated self.namespace
                 self.namespace.update(namespace)
             except TypeError:  # Type Errors may happen, but that doesn't matter as they are displayed in the gui
                 pass
             except Exception:
-                log.exception(f'Failed to evaluate variable block {variable_block.name}', exc_info=True)
+                log.exception(
+                    f"Failed to evaluate variable block {variable_block.name}",
+                    exc_info=True,
+                )
         return namespace
 
     def _renew_namespace(self) -> None:
@@ -311,17 +321,24 @@ class FlowGraph(Element):
         namespace = self._reload_variables(namespace)
         self._eval_cache.clear()
 
-    def evaluate(self, expr: str, namespace: Optional[dict] = None, local_namespace: Optional[dict] = None):
+    def evaluate(
+        self,
+        expr: str,
+        namespace: Optional[dict] = None,
+        local_namespace: Optional[dict] = None,
+    ):
         """
         Evaluate the expression within the specified global and local namespaces
         """
         # Evaluate
         if not expr:
-            raise Exception('Cannot evaluate empty statement.')
+            raise Exception("Cannot evaluate empty statement.")
         if namespace is not None:
             return eval(expr, namespace, local_namespace)
         else:
-            return self._eval_cache.setdefault(expr, eval(expr, self.namespace, local_namespace))
+            return self._eval_cache.setdefault(
+                expr, eval(expr, self.namespace, local_namespace)
+            )
 
     ##############################################
     # Add/remove stuff
@@ -338,7 +355,7 @@ class FlowGraph(Element):
         Returns:
             the new block or None if not found
         """
-        if block_id == 'options':
+        if block_id == "options":
             return self.options_block
         try:
             block = self.parent_platform.make_block(self, block_id, **kwargs)
@@ -360,7 +377,8 @@ class FlowGraph(Element):
             the new connection
         """
         connection = self.parent_platform.Connection(
-            parent=self, source=porta, sink=portb)
+            parent=self, source=porta, sink=portb
+        )
         if params:
             connection.import_data(params)
         self.connections.add(connection)
@@ -368,8 +386,9 @@ class FlowGraph(Element):
         return connection
 
     def disconnect(self, *ports) -> None:
-        to_be_removed = [con for con in self.connections
-                         if any(port in con for port in ports)]
+        to_be_removed = [
+            con for con in self.connections if any(port in con for port in ports)
+        ]
         for con in to_be_removed:
             self.remove_element(con)
 
@@ -405,45 +424,57 @@ class FlowGraph(Element):
         Returns:
             a nested data odict
         """
+
         def block_order(b):
             return not b.is_variable, b.name  # todo: vars still first ?!?
 
         def get_file_format_version(data) -> int:
             """Determine file format version based on available data"""
-            if any(isinstance(c, dict) for c in data['connections']):
+            if any(isinstance(c, dict) for c in data["connections"]):
                 return 2
             return 1
 
         def sort_connection_key(connection_info) -> List[str]:
             if isinstance(connection_info, dict):
-                return [connection_info.get(key) for key in ('src_blk_id', 'src_port_id', 'snk_blk_id', 'snk_port_id')]
+                return [
+                    connection_info.get(key)
+                    for key in (
+                        "src_blk_id",
+                        "src_port_id",
+                        "snk_blk_id",
+                        "snk_port_id",
+                    )
+                ]
             return connection_info
-        data = collections.OrderedDict()
-        data['options'] = self.options_block.export_data()
-        data['blocks'] = [b.export_data() for b in sorted(self.blocks, key=block_order)
-                          if b is not self.options_block]
-        data['connections'] = sorted(
-            (c.export_data() for c in self.connections),
-            key=sort_connection_key)
 
-        data['metadata'] = {
-            'file_format': get_file_format_version(data),
-            'grc_version': self.parent_platform.config.version
+        data = collections.OrderedDict()
+        data["options"] = self.options_block.export_data()
+        data["blocks"] = [
+            b.export_data()
+            for b in sorted(self.blocks, key=block_order)
+            if b is not self.options_block
+        ]
+        data["connections"] = sorted(
+            (c.export_data() for c in self.connections), key=sort_connection_key
+        )
+
+        data["metadata"] = {
+            "file_format": get_file_format_version(data),
+            "grc_version": self.parent_platform.config.version,
         }
         return data
 
     def _build_depending_hier_block(self, block_id) -> Optional[Block]:
         # we're before the initial fg update(), so no evaluated values!
         # --> use raw value instead
-        path_param = self.options_block.params['hier_block_src_path']
+        path_param = self.options_block.params["hier_block_src_path"]
         file_path = self.parent_platform.find_file_in_paths(
-            filename=block_id + '.grc',
+            filename=block_id + ".grc",
             paths=path_param.get_value(),
-            cwd=self.grc_file_path
+            cwd=self.grc_file_path,
         )
         if file_path:  # grc file found. load and get block
-            self.parent_platform.load_and_generate_flow_graph(
-                file_path, hier_only=True)
+            self.parent_platform.load_and_generate_flow_graph(file_path, hier_only=True)
             return self.new_block(block_id)  # can be None
 
     def import_data(self, data) -> bool:
@@ -462,19 +493,20 @@ class FlowGraph(Element):
         del self.blocks[:]
         self.connections.clear()
 
-        file_format = data['metadata']['file_format']
+        file_format = data["metadata"]["file_format"]
 
         # build the blocks
-        self.options_block.import_data(name='', **data.get('options', {}))
+        self.options_block.import_data(name="", **data.get("options", {}))
         self.blocks.append(self.options_block)
 
-        for block_data in data.get('blocks', []):
-            block_id = block_data['id']
+        for block_data in data.get("blocks", []):
+            block_id = block_data["id"]
             block = (
-                self.new_block(block_id) or
-                self._build_depending_hier_block(block_id) or
-                self.new_block(block_id='_dummy',
-                               missing_block_id=block_id, **block_data)
+                self.new_block(block_id)
+                or self._build_depending_hier_block(block_id)
+                or self.new_block(
+                    block_id="_dummy", missing_block_id=block_id, **block_data
+                )
             )
 
             block.import_data(**block_data)
@@ -483,11 +515,11 @@ class FlowGraph(Element):
 
         # build the connections
         def verify_and_get_port(key, block, dir):
-            ports = block.sinks if dir == 'sink' else block.sources
+            ports = block.sinks if dir == "sink" else block.sources
             for port in ports:
-                if key == port.key or key + '0' == port.key:
+                if key == port.key or key + "0" == port.key:
                     break
-                if not key.isdigit() and port.dtype == '' and key == port.name:
+                if not key.isdigit() and port.dtype == "" and key == port.name:
                     break
             else:
                 if block.is_dummy_block:
@@ -500,7 +532,7 @@ class FlowGraph(Element):
         _blocks = {block.name: block for block in self.blocks}
 
         # TODO: Add better error handling if no connections exist in the flowgraph file.
-        for connection_info in data.get('connections', []):
+        for connection_info in data.get("connections", []):
             # First unpack the connection info, which can be in different formats.
             # FLOW_GRAPH_FILE_FORMAT_VERSION 1: Connection info is a 4-tuple
             if isinstance(connection_info, (list, tuple)) and len(connection_info) == 4:
@@ -508,13 +540,13 @@ class FlowGraph(Element):
                 conn_params = {}
             # FLOW_GRAPH_FILE_FORMAT_VERSION 2: Connection info is a dictionary
             elif isinstance(connection_info, dict):
-                src_blk_id = connection_info.get('src_blk_id')
-                src_port_id = connection_info.get('src_port_id')
-                snk_blk_id = connection_info.get('snk_blk_id')
-                snk_port_id = connection_info.get('snk_port_id')
-                conn_params = connection_info.get('params', {})
+                src_blk_id = connection_info.get("src_blk_id")
+                src_port_id = connection_info.get("src_port_id")
+                snk_blk_id = connection_info.get("snk_blk_id")
+                snk_port_id = connection_info.get("snk_port_id")
+                conn_params = connection_info.get("params", {})
             else:
-                Messages.send_error_load('Invalid connection format detected!')
+                Messages.send_error_load("Invalid connection format detected!")
                 had_connect_errors = True
                 continue
             try:
@@ -524,25 +556,25 @@ class FlowGraph(Element):
                 # fix old, numeric message ports keys
                 if file_format < 1:
                     src_port_id, snk_port_id = _update_old_message_port_keys(
-                        src_port_id, snk_port_id, source_block, sink_block)
+                        src_port_id, snk_port_id, source_block, sink_block
+                    )
 
                 # build the connection
-                source_port = verify_and_get_port(
-                    src_port_id, source_block, 'source')
-                sink_port = verify_and_get_port(
-                    snk_port_id, sink_block, 'sink')
+                source_port = verify_and_get_port(src_port_id, source_block, "source")
+                sink_port = verify_and_get_port(snk_port_id, sink_block, "sink")
 
                 self.connect(source_port, sink_port, conn_params)
 
             except (KeyError, LookupError) as e:
                 Messages.send_error_load(
                     f"""Connection between {src_blk_id}({src_port_id}) and {snk_blk_id}({snk_port_id}) could not be made
-                    \t{e}""")
+                    \t{e}"""
+                )
                 had_connect_errors = True
 
         for block in self.blocks:
             if block.is_dummy_block:
-                block.rewrite()      # Make ports visible
+                block.rewrite()  # Make ports visible
                 # Flowgraph errors depending on disabled blocks are not displayed
                 # in the error dialog box
                 # So put a message into the Property window of the dummy block
@@ -552,7 +584,9 @@ class FlowGraph(Element):
         return had_connect_errors
 
 
-def _update_old_message_port_keys(source_key, sink_key, source_block, sink_block) -> Tuple[str, str]:
+def _update_old_message_port_keys(
+    source_key, sink_key, source_block, sink_block
+) -> Tuple[str, str]:
     """
     Backward compatibility for message port keys
 

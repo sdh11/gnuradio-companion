@@ -6,7 +6,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 """
 
-
 from ..core import Messages
 from .Dialogs import TextDisplay, MessageDialogWrapper
 from .Constants import DEFAULT_CONSOLE_WINDOW_WIDTH
@@ -15,7 +14,8 @@ import os
 import logging
 
 import gi
-gi.require_version('Gtk', '3.0')
+
+gi.require_version("Gtk", "3.0")
 
 
 log = logging.getLogger(__name__)

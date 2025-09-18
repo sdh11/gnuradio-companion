@@ -6,7 +6,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 """
 
-
 import sys
 import os
 
@@ -17,7 +16,6 @@ from collections import ChainMap
 
 
 class Platform(CorePlatform):
-
     def __init__(self, *args, **kwargs):
         CorePlatform.__init__(self, *args, **kwargs)
 
@@ -34,12 +32,14 @@ class Platform(CorePlatform):
     def _move_old_pref_file(self):
         gui_prefs_file = self.config.gui_prefs_file
         old_gui_prefs_file = os.environ.get(
-            'GRC_PREFS_PATH', os.path.expanduser('~/.grc'))
+            "GRC_PREFS_PATH", os.path.expanduser("~/.grc")
+        )
         if gui_prefs_file == old_gui_prefs_file:
             return  # prefs file overridden with env var
         if os.path.exists(old_gui_prefs_file) and not os.path.exists(gui_prefs_file):
             try:
                 import shutil
+
                 shutil.move(old_gui_prefs_file, gui_prefs_file)
             except Exception as e:
                 print(e, file=sys.stderr)
@@ -55,11 +55,17 @@ class Platform(CorePlatform):
         cls = CorePlatform.new_block_class(self, **data)
         return canvas.Block.make_cls_with_base(cls)
 
-    block_classes_build_in = {key: canvas.Block.make_cls_with_base(cls)
-                              for key, cls in CorePlatform.block_classes_build_in.items()}
+    block_classes_build_in = {
+        key: canvas.Block.make_cls_with_base(cls)
+        for key, cls in CorePlatform.block_classes_build_in.items()
+    }
     block_classes = ChainMap({}, block_classes_build_in)
 
-    port_classes = {key: canvas.Port.make_cls_with_base(cls)
-                    for key, cls in CorePlatform.port_classes.items()}
-    param_classes = {key: canvas.Param.make_cls_with_base(cls)
-                     for key, cls in CorePlatform.param_classes.items()}
+    port_classes = {
+        key: canvas.Port.make_cls_with_base(cls)
+        for key, cls in CorePlatform.port_classes.items()
+    }
+    param_classes = {
+        key: canvas.Param.make_cls_with_base(cls)
+        for key, cls in CorePlatform.param_classes.items()
+    }

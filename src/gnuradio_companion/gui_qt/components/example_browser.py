@@ -5,7 +5,13 @@ import traceback
 from qtpy import uic
 from qtpy.QtCore import QObject, Signal, Slot, QRunnable, QVariant, Qt
 from qtpy.QtGui import QPixmap, QStandardItem, QStandardItemModel
-from qtpy.QtWidgets import QDialog, QListWidgetItem, QTreeWidgetItem, QWidget, QVBoxLayout
+from qtpy.QtWidgets import (
+    QDialog,
+    QListWidgetItem,
+    QTreeWidgetItem,
+    QWidget,
+    QVBoxLayout,
+)
 
 
 from ...core.cache import Cache
@@ -35,7 +41,7 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.signals = WorkerSignals()
 
-        self.kwargs['progress_callback'] = self.signals.progress
+        self.kwargs["progress_callback"] = self.signals.progress
 
     @Slot()
     def run(self):
@@ -68,16 +74,16 @@ class ExampleBrowser(QWidget, base.Component):
     data_role = Qt.UserRole
 
     lang_dict = {
-        'python': 'Python',
-        'cpp': 'C++',
+        "python": "Python",
+        "cpp": "C++",
     }
 
     gen_opts_dict = {
-        'no_gui': 'No GUI',
-        'qt_gui': 'Qt GUI',
-        'bokeh_gui': 'Bokeh GUI',
-        'hb': 'Hier block ',
-        'hb_qt_gui': 'Hier block (Qt GUI)'
+        "no_gui": "No GUI",
+        "qt_gui": "Qt GUI",
+        "bokeh_gui": "Bokeh GUI",
+        "hb": "Hier block ",
+        "hb_qt_gui": "Hier block (Qt GUI)",
     }
 
     def __init__(self):
@@ -132,7 +138,7 @@ class ExampleBrowser(QWidget, base.Component):
 
         for path, examples in examples_dict.items():
             for ex in examples:
-                rel_path = os.path.relpath(os.path.dirname(ex['path']), path)
+                rel_path = os.path.relpath(os.path.dirname(ex["path"]), path)
                 split_rel_path = os.path.normpath(rel_path).split(os.path.sep)
                 parent_path = "/".join(split_rel_path[0:-1])
                 if rel_path not in self.dir_items:
@@ -143,15 +149,21 @@ class ExampleBrowser(QWidget, base.Component):
                         except KeyError:
                             i = 0
                             while i <= len(split_rel_path):
-                                partial_path = "/".join(split_rel_path[0:i + 1])
-                                split_partial_path = os.path.normpath(partial_path).split(os.path.sep)
+                                partial_path = "/".join(split_rel_path[0 : i + 1])
+                                split_partial_path = os.path.normpath(
+                                    partial_path
+                                ).split(os.path.sep)
                                 if not partial_path in self.dir_items:
                                     if i == 0:  # Top level
                                         dir_ = QTreeWidgetItem(self.tree_widget)
                                         dir_.setText(0, partial_path)
                                         self.dir_items[partial_path] = dir_
                                     else:
-                                        dir_ = QTreeWidgetItem(self.dir_items["/".join(split_partial_path[:-1])])
+                                        dir_ = QTreeWidgetItem(
+                                            self.dir_items[
+                                                "/".join(split_partial_path[:-1])
+                                            ]
+                                        )
                                         dir_.setText(0, split_partial_path[-1])
                                         self.dir_items[partial_path] = dir_
                                 i += 1
@@ -168,7 +180,7 @@ class ExampleBrowser(QWidget, base.Component):
         self.author_label.setText(f"<b>Author:</b> ")
         self.language_label.setText(f"<b>Output language:</b> ")
         self.gen_opts_label.setText(f"<b>Type:</b> ")
-        self.desc_label.setText('')
+        self.desc_label.setText("")
         self.image_label.setPixmap(QPixmap())
 
     def populate_preview(self):
@@ -178,12 +190,15 @@ class ExampleBrowser(QWidget, base.Component):
         self.author_label.setText(f"<b>Author:</b> {ex['author'] if ex else ''}")
         try:
             self.language_label.setText(
-                f"<b>Output language:</b> {self.lang_dict[ex['output_language']] if ex else ''}")
-            self.gen_opts_label.setText(f"<b>Type:</b> {self.gen_opts_dict[ex['generate_options']] if ex else ''}")
+                f"<b>Output language:</b> {self.lang_dict[ex['output_language']] if ex else ''}"
+            )
+            self.gen_opts_label.setText(
+                f"<b>Type:</b> {self.gen_opts_dict[ex['generate_options']] if ex else ''}"
+            )
         except KeyError:
             self.language_label.setText(f"<b>Output language:</b> ")
             self.gen_opts_label.setText(f"<b>Type:</b> ")
-        self.desc_label.setText(ex["desc"] if ex else '')
+        self.desc_label.setText(ex["desc"] if ex else "")
 
         if ex:
             if ex["output_language"] == "python":
@@ -227,7 +242,7 @@ class ExampleBrowser(QWidget, base.Component):
             return not item.isHidden()
         else:  # is an example
             ex = item.data(0, self.data_role)
-            if ex['path'] in path:
+            if ex["path"] in path:
                 item.setHidden(False)
                 return True
             else:
@@ -252,12 +267,15 @@ class ExampleBrowser(QWidget, base.Component):
         examples_dict = {}
         try:
             from gnuradio.gr import paths
-            cache_file = os.path.join(paths.cache(), Constants.GRC_SUBDIR, Constants.EXAMPLE_CACHE_FILE_NAME)
+
+            cache_file = os.path.join(
+                paths.cache(), Constants.GRC_SUBDIR, Constants.EXAMPLE_CACHE_FILE_NAME
+            )
         except ImportError:
             cache_file = Constants.FALLBACK_EXAMPLE_CACHE_FILE
         with Cache(cache_file, log=False) as cache:
             for entry in self.platform.config.example_paths:
-                if entry == '':
+                if entry == "":
                     log.info("Empty example path!")
                     continue
                 examples_dict[entry] = []
@@ -269,23 +287,43 @@ class ExampleBrowser(QWidget, base.Component):
                     for dirpath, dirnames, filenames in os.walk(entry):
                         dirnames.sort()
                         current_subdir += 1
-                        progress_callback.emit((int(100 * current_subdir / subdirs), "Indexing examples"))
-                        for filename in sorted(filter(lambda f: f.endswith('.' + ext), filenames)):
+                        progress_callback.emit(
+                            (int(100 * current_subdir / subdirs), "Indexing examples")
+                        )
+                        for filename in sorted(
+                            filter(lambda f: f.endswith("." + ext), filenames)
+                        ):
                             file_path = os.path.join(dirpath, filename)
                             try:
                                 data = cache.get_or_load(file_path)
                                 example = {}
                                 example["name"] = os.path.basename(file_path)
-                                example["generate_options"] = data["options"]["parameters"].get(
-                                    "generate_options") or "no_gui"
-                                example["output_language"] = data["options"]["parameters"].get(
-                                    "output_language") or "python"
-                                example["example_filter"] = data["metadata"].get("example_filter") or []
-                                example["title"] = data["options"]["parameters"]["title"] or ""
-                                example["desc"] = data["options"]["parameters"]["description"] or ""
-                                example["author"] = data["options"]["parameters"]["author"] or ""
+                                example["generate_options"] = (
+                                    data["options"]["parameters"].get(
+                                        "generate_options"
+                                    )
+                                    or "no_gui"
+                                )
+                                example["output_language"] = (
+                                    data["options"]["parameters"].get("output_language")
+                                    or "python"
+                                )
+                                example["example_filter"] = (
+                                    data["metadata"].get("example_filter") or []
+                                )
+                                example["title"] = (
+                                    data["options"]["parameters"]["title"] or ""
+                                )
+                                example["desc"] = (
+                                    data["options"]["parameters"]["description"] or ""
+                                )
+                                example["author"] = (
+                                    data["options"]["parameters"]["author"] or ""
+                                )
                                 example["path"] = file_path
-                                example["module"] = os.path.dirname(file_path).replace(entry, "")
+                                example["module"] = os.path.dirname(file_path).replace(
+                                    entry, ""
+                                )
                                 if example["module"].startswith("/"):
                                     example["module"] = example["module"][1:]
 

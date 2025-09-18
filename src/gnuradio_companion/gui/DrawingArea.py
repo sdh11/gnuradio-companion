@@ -6,7 +6,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 """
 
-
 from gi.repository import Gtk, Gdk
 
 from .canvas.colors import FLOWGRAPH_BACKGROUND_COLOR
@@ -31,7 +30,7 @@ class DrawingArea(Gtk.DrawingArea):
         Gtk.DrawingArea.__init__(self)
 
         self._flow_graph = flow_graph
-        self.set_property('can_focus', True)
+        self.set_property("can_focus", True)
 
         self.zoom_factor = 1.0
         self._update_after_zoom = False
@@ -43,19 +42,19 @@ class DrawingArea(Gtk.DrawingArea):
         self._old_mouse_coodinates = (0, 0)
 
         # self.set_size_request(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
-        self.connect('realize', self._handle_window_realize)
-        self.connect('draw', self.draw)
-        self.connect('motion-notify-event', self._handle_mouse_motion)
-        self.connect('button-press-event', self._handle_mouse_button_press)
-        self.connect('button-release-event', self._handle_mouse_button_release)
-        self.connect('scroll-event', self._handle_mouse_scroll)
+        self.connect("realize", self._handle_window_realize)
+        self.connect("draw", self.draw)
+        self.connect("motion-notify-event", self._handle_mouse_motion)
+        self.connect("button-press-event", self._handle_mouse_button_press)
+        self.connect("button-release-event", self._handle_mouse_button_release)
+        self.connect("scroll-event", self._handle_mouse_scroll)
         self.add_events(
-            Gdk.EventMask.BUTTON_PRESS_MASK |
-            Gdk.EventMask.POINTER_MOTION_MASK |
-            Gdk.EventMask.BUTTON_RELEASE_MASK |
-            Gdk.EventMask.SCROLL_MASK |
-            Gdk.EventMask.LEAVE_NOTIFY_MASK |
-            Gdk.EventMask.ENTER_NOTIFY_MASK
+            Gdk.EventMask.BUTTON_PRESS_MASK
+            | Gdk.EventMask.POINTER_MOTION_MASK
+            | Gdk.EventMask.BUTTON_RELEASE_MASK
+            | Gdk.EventMask.SCROLL_MASK
+            | Gdk.EventMask.LEAVE_NOTIFY_MASK
+            | Gdk.EventMask.ENTER_NOTIFY_MASK
             # Gdk.EventMask.FOCUS_CHANGE_MASK
         )
 
@@ -65,7 +64,7 @@ class DrawingArea(Gtk.DrawingArea):
 
         # setup drag and drop
         self.drag_dest_set(Gtk.DestDefaults.ALL, [], Gdk.DragAction.COPY)
-        self.connect('drag-data-received', self._handle_drag_data_received)
+        self.connect("drag-data-received", self._handle_drag_data_received)
         self.drag_dest_set_target_list(None)
         self.drag_dest_add_text_targets()
 
@@ -76,17 +75,19 @@ class DrawingArea(Gtk.DrawingArea):
         def _handle_notify_event(widget, event, focus_flag):
             self._focus_flag = focus_flag
 
-        self.connect('leave-notify-event', _handle_notify_event, False)
-        self.connect('enter-notify-event', _handle_notify_event, True)
+        self.connect("leave-notify-event", _handle_notify_event, False)
+        self.connect("enter-notify-event", _handle_notify_event, True)
 
         self.set_can_focus(True)
-        self.connect('focus-out-event', self._handle_focus_lost_event)
+        self.connect("focus-out-event", self._handle_focus_lost_event)
 
     ##########################################################################
     # Handlers
     ##########################################################################
 
-    def _handle_drag_data_received(self, widget, drag_context, x, y, selection_data, info, time):
+    def _handle_drag_data_received(
+        self, widget, drag_context, x, y, selection_data, info, time
+    ):
         """
         Handle a drag and drop by adding a block at the given coordinate.
         """
@@ -125,7 +126,7 @@ class DrawingArea(Gtk.DrawingArea):
             adj_val = adj.get_value()
             if abs(dpos) >= Constants.SCROLL_DISTANCE:
                 adj.set_value(adj_val - dpos)
-                adj.emit('changed')
+                adj.emit("changed")
 
         dx = x - old_x
         dy = y - old_y
@@ -153,7 +154,7 @@ class DrawingArea(Gtk.DrawingArea):
         self.button_state[event.button] = True
 
         if event.button == 1:
-            double_click = (event.type == Gdk.EventType._2BUTTON_PRESS)
+            double_click = event.type == Gdk.EventType._2BUTTON_PRESS
             self.button_state[1] = not double_click
             self._flow_graph.handle_mouse_selector_press(
                 double_click=double_click,
@@ -215,10 +216,10 @@ class DrawingArea(Gtk.DrawingArea):
             adj_len = adj.get_page_size()
             if pos - adj_val > adj_len - Constants.SCROLL_PROXIMITY_SENSITIVITY:
                 adj.set_value(adj_val + Constants.SCROLL_DISTANCE)
-                adj.emit('changed')
+                adj.emit("changed")
             elif pos - adj_val < Constants.SCROLL_PROXIMITY_SENSITIVITY:
                 adj.set_value(adj_val - Constants.SCROLL_DISTANCE)
-                adj.emit('changed')
+                adj.emit("changed")
 
         scroll(x, scrollbox.get_hadjustment())
         scroll(y, scrollbox.get_vadjustment())

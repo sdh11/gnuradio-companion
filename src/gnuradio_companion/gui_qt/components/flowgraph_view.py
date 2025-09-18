@@ -13,7 +13,10 @@ from qtpy.QtCore import Qt
 from .canvas.block import Block
 from .. import base
 from .canvas.flowgraph import FlowgraphScene, Flowgraph
-from .canvas.colors import LIGHT_FLOWGRAPH_BACKGROUND_COLOR, DARK_FLOWGRAPH_BACKGROUND_COLOR
+from .canvas.colors import (
+    LIGHT_FLOWGRAPH_BACKGROUND_COLOR,
+    DARK_FLOWGRAPH_BACKGROUND_COLOR,
+)
 
 from ...core.generator import Generator
 
@@ -76,7 +79,7 @@ class FlowgraphView(
         if self.process is None:
             return True
         else:
-            return (False if self.process.returncode is None else True)
+            return False if self.process.returncode is None else True
 
     def readFile(self, filename):
         tree = ET.parse(filename)
@@ -146,7 +149,8 @@ class FlowgraphView(
 
         elif event.modifiers() == Qt.ShiftModifier:
             self.horizontalScrollBar().setValue(
-                self.horizontalScrollBar().value() - event.angleDelta().y())
+                self.horizontalScrollBar().value() - event.angleDelta().y()
+            )
         else:
             QtWidgets.QGraphicsView.wheelEvent(self, event)
 

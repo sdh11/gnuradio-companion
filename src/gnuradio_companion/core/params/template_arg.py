@@ -16,11 +16,13 @@ class TemplateArg(str):
     def __new__(cls, param):
         value = param.to_code()
         instance = str.__new__(cls, value)
-        setattr(instance, '_param', param)
+        setattr(instance, "_param", param)
         return instance
 
     def __getitem__(self, item):
-        return str(self._param.get_opt(item)) if self._param.is_enum() else NotImplemented
+        return (
+            str(self._param.get_opt(item)) if self._param.is_enum() else NotImplemented
+        )
 
     def __getattr__(self, item):
         if not self._param.is_enum():

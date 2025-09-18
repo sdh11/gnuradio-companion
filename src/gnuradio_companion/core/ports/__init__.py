@@ -6,6 +6,5 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 """
 
-
 from .port import Port
 from .clone import PortClone

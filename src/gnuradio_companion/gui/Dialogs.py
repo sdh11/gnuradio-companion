@@ -20,7 +20,7 @@ class SimpleTextDisplay(Gtk.TextView):
     A non user-editable gtk text view.
     """
 
-    def __init__(self, text=''):
+    def __init__(self, text=""):
         """
         TextDisplay constructor.
 
@@ -40,7 +40,7 @@ class TextDisplay(SimpleTextDisplay):
     A non user-editable scrollable text view with popup menu.
     """
 
-    def __init__(self, text=''):
+    def __init__(self, text=""):
         """
         TextDisplay constructor.
 
@@ -78,7 +78,7 @@ class TextDisplay(SimpleTextDisplay):
         # for each \b delete one char from the buffer
         back_count = 0
         start_iter = self.get_buffer().get_end_iter()
-        while len(line) > back_count and line[back_count] == '\b':
+        while len(line) > back_count and line[back_count] == "\b":
             # stop at the beginning of a line
             if not start_iter.starts_line():
                 start_iter.backward_char()
@@ -88,7 +88,7 @@ class TextDisplay(SimpleTextDisplay):
         return line[back_count:]
 
     def scroll_to_end(self):
-        """ Update view's scroll position. """
+        """Update view's scroll position."""
         if self.scroll_lock:
             buf = self.get_buffer()
             mark = buf.get_insert()
@@ -96,7 +96,7 @@ class TextDisplay(SimpleTextDisplay):
             self.scroll_mark_onscreen(mark)
 
     def clear(self):
-        """ Clear all text from buffer. """
+        """Clear all text from buffer."""
         buf = self.get_buffer()
         buf.delete(buf.get_start_iter(), buf.get_end_iter())
 
@@ -107,22 +107,21 @@ class TextDisplay(SimpleTextDisplay):
         Args:
             file_path: location to save buffer contents
         """
-        with open(file_path, 'w') as logfile:
+        with open(file_path, "w") as logfile:
             buf = self.get_buffer()
-            logfile.write(buf.get_text(buf.get_start_iter(),
-                                       buf.get_end_iter(), True))
+            logfile.write(buf.get_text(buf.get_start_iter(), buf.get_end_iter(), True))
 
     # Action functions are set by the Application's init function
     def clear_cb(self, menu_item, web_view):
-        """ Callback function to clear the text buffer """
+        """Callback function to clear the text buffer"""
         Actions.CLEAR_CONSOLE()
 
     def scroll_back_cb(self, menu_item, web_view):
-        """ Callback function to toggle scroll lock """
+        """Callback function to toggle scroll lock"""
         Actions.TOGGLE_SCROLL_LOCK()
 
     def save_cb(self, menu_item, web_view):
-        """ Callback function to save the buffer """
+        """Callback function to save the buffer"""
         Actions.SAVE_CONSOLE()
 
     def populate_popup(self, view, menu):
@@ -132,24 +131,32 @@ class TextDisplay(SimpleTextDisplay):
         lock = Gtk.CheckMenuItem(label="Scroll Lock")
         menu.append(lock)
         lock.set_active(self.scroll_lock)
-        lock.connect('activate', self.scroll_back_cb, view)
+        lock.connect("activate", self.scroll_back_cb, view)
 
         save = Gtk.ImageMenuItem(label="Save Console")
         menu.append(save)
-        save.connect('activate', self.save_cb, view)
+        save.connect("activate", self.save_cb, view)
 
         clear = Gtk.ImageMenuItem(label="Clear Console")
         menu.append(clear)
-        clear.connect('activate', self.clear_cb, view)
+        clear.connect("activate", self.clear_cb, view)
         menu.show_all()
         return False
 
 
 class MessageDialogWrapper(Gtk.MessageDialog):
-    """ Run a message dialog. """
+    """Run a message dialog."""
 
-    def __init__(self, parent, message_type, buttons, title=None, markup=None,
-                 default_response=None, extra_buttons=None):
+    def __init__(
+        self,
+        parent,
+        message_type,
+        buttons,
+        title=None,
+        markup=None,
+        default_response=None,
+        extra_buttons=None,
+    ):
         """
         Create a modal message dialog.
 
@@ -173,8 +180,12 @@ class MessageDialogWrapper(Gtk.MessageDialog):
 
         """
         Gtk.MessageDialog.__init__(
-            self, transient_for=parent, modal=True, destroy_with_parent=True,
-            message_type=message_type, buttons=buttons
+            self,
+            transient_for=parent,
+            modal=True,
+            destroy_with_parent=True,
+            message_type=message_type,
+            buttons=buttons,
         )
         self.set_keep_above(True)
         if title:
@@ -193,13 +204,13 @@ class MessageDialogWrapper(Gtk.MessageDialog):
 
 
 class ErrorsDialog(Gtk.Dialog):
-    """ Display flowgraph errors. """
+    """Display flowgraph errors."""
 
     def __init__(self, parent, flowgraph):
         """Create a listview of errors"""
         Gtk.Dialog.__init__(
             self,
-            title='Errors and Warnings',
+            title="Errors and Warnings",
             transient_for=parent,
             modal=True,
             destroy_with_parent=True,
@@ -232,19 +243,20 @@ class ErrorsDialog(Gtk.Dialog):
         self.store.clear()
         for element, message in flowgraph.iter_error_messages():
             if element.is_block:
-                src, aspect = element.name, ''
+                src, aspect = element.name, ""
             elif element.is_connection:
                 src = element.source_block.name
                 aspect = "Connection to '{}'".format(element.sink_block.name)
             elif element.is_port:
                 src = element.parent_block.name
                 aspect = "{} '{}'".format(
-                    'Sink' if element.is_sink else 'Source', element.name)
+                    "Sink" if element.is_sink else "Source", element.name
+                )
             elif element.is_param:
                 src = element.parent_block.name
                 aspect = "Param '{}'".format(element.name)
             else:
-                src = aspect = ''
+                src = aspect = ""
             self.store.append([src, aspect, message])
 
     def run_and_destroy(self):
@@ -253,7 +265,7 @@ class ErrorsDialog(Gtk.Dialog):
         return response
 
     def mouse_click(self, _, event):
-        """ Handle mouse click, so user can copy the error message """
+        """Handle mouse click, so user can copy the error message"""
         if event.button == 3:
             path_info = self.treeview.get_path_at_pos(event.x, event.y)
             if path_info is not None:
@@ -270,14 +282,14 @@ class ErrorsDialog(Gtk.Dialog):
 def show_about(parent, config):
     ad = Gtk.AboutDialog(transient_for=parent)
     ad.set_program_name(config.name)
-    ad.set_name('')
+    ad.set_name("")
     ad.set_license(config.license)
 
     py_version = sys.version.split()[0]
     ad.set_version("{} (Python {})".format(config.version, py_version))
 
     try:
-        ad.set_logo(Gtk.IconTheme().load_icon('gnuradio-grc', 64, 0))
+        ad.set_logo(Gtk.IconTheme().load_icon("gnuradio-grc", 64, 0))
     except GLib.Error:
         Messages.send("Failed to set window logo\n")
 
@@ -290,7 +302,7 @@ def show_about(parent, config):
 
 
 def show_help(parent):
-    """ Display basic usage tips. """
+    """Display basic usage tips."""
     markup = textwrap.dedent("""\
         <b>Usage Tips</b>
         \n\
@@ -310,12 +322,12 @@ def show_help(parent):
     markup = markup.replace("Ctrl", Utils.get_modifier_key())
 
     MessageDialogWrapper(
-        parent, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, title='Help', markup=markup
+        parent, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, title="Help", markup=markup
     ).run_and_destroy()
 
 
 def show_keyboard_shortcuts(parent):
-    """ Display keyboard shortcut-keys. """
+    """Display keyboard shortcut-keys."""
     markup = textwrap.dedent("""\
     <b>Keyboard Shortcuts</b>
     \n\
@@ -352,7 +364,11 @@ def show_keyboard_shortcuts(parent):
     markup = markup.replace("Ctrl", Utils.get_modifier_key())
 
     MessageDialogWrapper(
-        parent, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, title='Keyboard - Shortcuts', markup=markup
+        parent,
+        Gtk.MessageType.INFO,
+        Gtk.ButtonsType.CLOSE,
+        title="Keyboard - Shortcuts",
+        markup=markup,
     ).run_and_destroy()
 
 
@@ -368,24 +384,32 @@ def show_get_involved(parent):
     """)
 
     MessageDialogWrapper(
-        parent, Gtk.MessageType.QUESTION, Gtk.ButtonsType.CLOSE, title='Get - Involved', markup=markup
+        parent,
+        Gtk.MessageType.QUESTION,
+        Gtk.ButtonsType.CLOSE,
+        title="Get - Involved",
+        markup=markup,
     ).run_and_destroy()
 
 
 def show_types(parent):
-    """ Display information about standard data types. """
-    colors = [(name, color)
-              for name, key, sizeof, color in Constants.CORE_TYPES]
+    """Display information about standard data types."""
+    colors = [(name, color) for name, key, sizeof, color in Constants.CORE_TYPES]
     max_len = 10 + max(len(name) for name, code in colors)
 
-    message = '\n'.join(
-        '<span background="{color}"><tt>{name}</tt></span>'
-        ''.format(color=color, name=Utils.encode(name).center(max_len))
+    message = "\n".join(
+        '<span background="{color}"><tt>{name}</tt></span>'.format(
+            color=color, name=Utils.encode(name).center(max_len)
+        )
         for name, color in colors
     )
 
     MessageDialogWrapper(
-        parent, Gtk.MessageType.INFO, Gtk.ButtonsType.CLOSE, title='Types - Color Mapping', markup=message
+        parent,
+        Gtk.MessageType.INFO,
+        Gtk.ButtonsType.CLOSE,
+        title="Types - Color Mapping",
+        markup=message,
     ).run_and_destroy()
 
 
@@ -398,8 +422,11 @@ def show_missing_xterm(parent, xterm):
     """).format(xterm)
 
     MessageDialogWrapper(
-        parent, message_type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK,
-        title='Warning: missing xterm executable', markup=markup
+        parent,
+        message_type=Gtk.MessageType.WARNING,
+        buttons=Gtk.ButtonsType.OK,
+        title="Warning: missing xterm executable",
+        markup=markup,
     ).run_and_destroy()
 
 

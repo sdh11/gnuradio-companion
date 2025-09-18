@@ -46,9 +46,13 @@ class Application(QtWidgets.QApplication):
         self.platform = platform
         config = platform.config
 
-        self.qsettings = QtCore.QSettings(config.gui_prefs_file, QtCore.QSettings.IniFormat)
+        self.qsettings = QtCore.QSettings(
+            config.gui_prefs_file, QtCore.QSettings.IniFormat
+        )
         log.debug(f"Using QSettings from {config.gui_prefs_file}")
-        os.environ["QT_SCALE_FACTOR"] = self.qsettings.value('appearance/qt_scale_factor', "1.0", type=str)
+        os.environ["QT_SCALE_FACTOR"] = self.qsettings.value(
+            "appearance/qt_scale_factor", "1.0", type=str
+        )
 
         log.debug("Creating QApplication instance")
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts, True)
@@ -76,7 +80,7 @@ class Application(QtWidgets.QApplication):
         stopwatch = StopWatch()
         self.MainWindow = components.MainWindow(file_path)
         stopwatch.lap("mainwindow")
-        level_str = self.qsettings.value('grc/console_log_level', "info", type=str)
+        level_str = self.qsettings.value("grc/console_log_level", "info", type=str)
         if level_str == "info":
             self.Console = components.Console(logging.INFO)
         else:  # level_str == "debug"
@@ -91,7 +95,9 @@ class Application(QtWidgets.QApplication):
         self.VariableEditor = components.VariableEditor()
         stopwatch.lap("variable_editor")
         self.VariableEditor.set_scene(self.MainWindow.currentFlowgraphScene)
-        self.VariableEditor.all_editor_actions.connect(self.MainWindow.handle_editor_action)
+        self.VariableEditor.all_editor_actions.connect(
+            self.MainWindow.handle_editor_action
+        )
         self.MainWindow.ExampleBrowser.set_library(self.BlockLibrary)
 
         # Debug times
@@ -123,9 +129,11 @@ class Application(QtWidgets.QApplication):
         )
         log.info(textwrap.dedent(welcome))
 
-        log.debug(f'devicePixelRatio {self.MainWindow.screen().devicePixelRatio()}')
+        log.debug(f"devicePixelRatio {self.MainWindow.screen().devicePixelRatio()}")
 
-        if (self.qsettings.value("appearance/theme", "dark") == "dark") and (self.theme == "light"):
+        if (self.qsettings.value("appearance/theme", "dark") == "dark") and (
+            self.theme == "light"
+        ):
             log.warning("Could not apply dark theme. Is QDarkStyle installed?")
 
     # Global registration functions

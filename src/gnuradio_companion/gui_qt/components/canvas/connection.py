@@ -6,27 +6,29 @@ from enum import Enum
 
 from ....core.Connection import Connection as CoreConnection
 from . import colors
-from ...Constants import (
-    CONNECTOR_ARROW_BASE,
-    CONNECTOR_ARROW_HEIGHT
-)
+from ...Constants import CONNECTOR_ARROW_BASE, CONNECTOR_ARROW_HEIGHT
 
 
-class StyledConnection():
+class StyledConnection:
     """
     Styled connection; current styles:
     - CURVED: cubic spline
     - ANGLED: rectangular connection, one step in the horizontal middle
     """
+
     class ConnectionStyle(Enum):
         CURVED = 0
         ANGLED = 1
 
     def __init__(self):
         self._qsettings = QApplication.instance().qsettings
-        self._conn_style_str = self._qsettings.value("appearance/connection_style", "CURVED", type=str)
+        self._conn_style_str = self._qsettings.value(
+            "appearance/connection_style", "CURVED", type=str
+        )
         self._conn_style = self.ConnectionStyle[self._conn_style_str]
-        self._line_width_factor = self._qsettings.value("appearance/line_width_factor", 1.0, type=float)
+        self._line_width_factor = self._qsettings.value(
+            "appearance/line_width_factor", 1.0, type=float
+        )
 
 
 class DummyConnection(QGraphicsPathItem, StyledConnection):
@@ -77,8 +79,12 @@ class DummyConnection(QGraphicsPathItem, StyledConnection):
 
         self._arrowhead.clear()
         self._arrowhead.moveTo(self.end_point)
-        self._arrowhead.lineTo(self.end_point + QPointF(-CONNECTOR_ARROW_HEIGHT, - CONNECTOR_ARROW_BASE / 2))
-        self._arrowhead.lineTo(self.end_point + QPointF(-CONNECTOR_ARROW_HEIGHT, CONNECTOR_ARROW_BASE / 2))
+        self._arrowhead.lineTo(
+            self.end_point + QPointF(-CONNECTOR_ARROW_HEIGHT, -CONNECTOR_ARROW_BASE / 2)
+        )
+        self._arrowhead.lineTo(
+            self.end_point + QPointF(-CONNECTOR_ARROW_HEIGHT, CONNECTOR_ARROW_BASE / 2)
+        )
         self._arrowhead.lineTo(self.end_point)
 
         self._path.clear()
@@ -168,8 +174,14 @@ class GUIConnection(QGraphicsPathItem, StyledConnection):
         # Create a default arrow head path
         default_arrowhead = QPainterPath()
         default_arrowhead.moveTo(QPointF(10.0, 0))
-        default_arrowhead.lineTo(QPointF(10.0, 0) + QPointF(-CONNECTOR_ARROW_HEIGHT, -CONNECTOR_ARROW_BASE / 2))
-        default_arrowhead.lineTo(QPointF(10.0, 0) + QPointF(-CONNECTOR_ARROW_HEIGHT, CONNECTOR_ARROW_BASE / 2))
+        default_arrowhead.lineTo(
+            QPointF(10.0, 0)
+            + QPointF(-CONNECTOR_ARROW_HEIGHT, -CONNECTOR_ARROW_BASE / 2)
+        )
+        default_arrowhead.lineTo(
+            QPointF(10.0, 0)
+            + QPointF(-CONNECTOR_ARROW_HEIGHT, CONNECTOR_ARROW_BASE / 2)
+        )
         default_arrowhead.lineTo(QPointF(10.0, 0))
 
         # Rotate the default arrow head path based on _arrow_rotation

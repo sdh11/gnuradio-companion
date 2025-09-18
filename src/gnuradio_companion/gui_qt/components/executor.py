@@ -25,9 +25,9 @@ class ExecFlowGraphThread(threading.Thread):
         self.update_callback = callback
 
         try:
-            if self.flow_graph.get_option('output_language') == 'python':
+            if self.flow_graph.get_option("output_language") == "python":
                 self.process = self.view.process = self._popen()
-            elif self.flow_graph.get_option('output_language') == 'cpp':
+            elif self.flow_graph.get_option("output_language") == "cpp":
                 self.process = self.view.process = self._cpp_popen()
 
             self.update_callback()
@@ -46,24 +46,26 @@ class ExecFlowGraphThread(threading.Thread):
 
         # When in no gui mode on linux, use a graphical terminal (looks nice)
         xterm_executable = find_executable(self.xterm_executable)
-        if generator.generate_options == 'no_gui' and xterm_executable:
-            if ('gnome-terminal' in xterm_executable):
-                run_command_args = [xterm_executable, '--'] + run_command_args
+        if generator.generate_options == "no_gui" and xterm_executable:
+            if "gnome-terminal" in xterm_executable:
+                run_command_args = [xterm_executable, "--"] + run_command_args
             else:
-                run_command_args = [xterm_executable, '-e'] + run_command_args
+                run_command_args = [xterm_executable, "-e"] + run_command_args
 
         # this does not reproduce a shell executable command string, if a graphical
         # terminal is used. Passing run_command though shlex_quote would do it but
         # it looks really ugly and confusing in the console panel.
-        Messages.send_start_exec(' '.join(run_command_args))
+        Messages.send_start_exec(" ".join(run_command_args))
 
         dirname = Path(generator.file_path).parent
 
         return subprocess.Popen(
             args=run_command_args,
             cwd=dirname,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            shell=False, universal_newlines=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=False,
+            universal_newlines=True,
         )
 
     def _cpp_popen(self):
@@ -71,11 +73,10 @@ class ExecFlowGraphThread(threading.Thread):
         Execute this C++ flow graph after generating and compiling it.
         """
         generator = self.view.get_generator()
-        run_command = generator.file_path + \
-            '/build/' + self.flow_graph.get_option('id')
+        run_command = generator.file_path + "/build/" + self.flow_graph.get_option("id")
 
         dirname = generator.file_path
-        builddir = os.path.join(dirname, 'build')
+        builddir = os.path.join(dirname, "build")
 
         if os.path.isfile(run_command):
             os.remove(run_command)
@@ -84,14 +85,16 @@ class ExecFlowGraphThread(threading.Thread):
 
         nproc = get_cmake_nproc()
 
-        run_command_args = f'cmake .. && cmake --build . -j{nproc} && cd ../.. && {xterm_executable} -e {run_command}'
+        run_command_args = f"cmake .. && cmake --build . -j{nproc} && cd ../.. && {xterm_executable} -e {run_command}"
         Messages.send_start_exec(run_command_args)
 
         return subprocess.Popen(
             args=run_command_args,
             cwd=builddir,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-            shell=True, universal_newlines=True
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            universal_newlines=True,
         )
 
     def run(self):

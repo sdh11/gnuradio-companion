@@ -5,10 +5,24 @@ from copy import copy
 from ..Constants import MIN_DIALOG_HEIGHT, DEFAULT_PARAM_TAB
 from qtpy.QtCore import Qt
 from qtpy.QtGui import QStandardItem, QStandardItemModel
-from qtpy.QtWidgets import (QLineEdit, QDialog, QDialogButtonBox, QTreeView,
-                            QVBoxLayout, QTabWidget, QGridLayout, QWidget, QLabel,
-                            QPushButton, QListWidget, QComboBox, QPlainTextEdit, QHBoxLayout,
-                            QFileDialog, QApplication)
+from qtpy.QtWidgets import (
+    QLineEdit,
+    QDialog,
+    QDialogButtonBox,
+    QTreeView,
+    QVBoxLayout,
+    QTabWidget,
+    QGridLayout,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QListWidget,
+    QComboBox,
+    QPlainTextEdit,
+    QHBoxLayout,
+    QFileDialog,
+    QApplication,
+)
 
 
 class ErrorsDialog(QDialog):
@@ -34,22 +48,27 @@ class ErrorsDialog(QDialog):
     def update(self):
         # TODO: Make sure the columns are wide enough
         self.model = QStandardItemModel()
-        self.model.setHorizontalHeaderLabels(['Source', 'Aspect', 'Message'])
+        self.model.setHorizontalHeaderLabels(["Source", "Aspect", "Message"])
         for element, message in self.flowgraph.iter_error_messages():
             if element.is_block:
-                src, aspect = QStandardItem(element.name), QStandardItem('')
+                src, aspect = QStandardItem(element.name), QStandardItem("")
             elif element.is_connection:
                 src = QStandardItem(element.source_block.name)
-                aspect = QStandardItem("Connection to '{}'".format(element.sink_block.name))
+                aspect = QStandardItem(
+                    "Connection to '{}'".format(element.sink_block.name)
+                )
             elif element.is_port:
                 src = QStandardItem(element.parent_block.name)
-                aspect = QStandardItem("{} '{}'".format(
-                    'Sink' if element.is_sink else 'Source', element.name))
+                aspect = QStandardItem(
+                    "{} '{}'".format(
+                        "Sink" if element.is_sink else "Source", element.name
+                    )
+                )
             elif element.is_param:
                 src = QStandardItem(element.parent_block.name)
                 aspect = QStandardItem("Param '{}'".format(element.name))
             else:
-                src = aspect = QStandardItem('')
+                src = aspect = QStandardItem("")
             self.model.appendRow([src, aspect, QStandardItem(message)])
         self.treeview.setModel(self.model)
 
@@ -88,8 +107,8 @@ class PropsDialog(QDialog):
             qvb.setHorizontalSpacing(20)
             i = 0
             for param in self._block.params.values():
-                if force_show_id and param.dtype == 'id':
-                    param.hide = 'none'
+                if force_show_id and param.dtype == "id":
+                    param.hide = "none"
                 if param.category == cat and param.hide != "all":
                     dtype_label = None
                     if param.dtype not in ignore_dtype_labels:
@@ -125,14 +144,18 @@ class PropsDialog(QDialog):
 
                         def open_editor(widget=None):
                             self._block.parent_flowgraph.gui.install_external_editor(
-                                ext_param)
+                                ext_param
+                            )
 
                         def open_chooser(widget=None):
-                            self._block.parent_flowgraph.gui.remove_external_editor(param=ext_param)
+                            self._block.parent_flowgraph.gui.remove_external_editor(
+                                param=ext_param
+                            )
                             editor, filtr = QFileDialog.getOpenFileName(
                                 self,
                             )
                             self.qsettings.setValue("grc/editor", editor)
+
                         editor_widget = QWidget()
                         editor_widget.setLayout(QHBoxLayout())
                         open_editor_button = QPushButton("Open in Editor")

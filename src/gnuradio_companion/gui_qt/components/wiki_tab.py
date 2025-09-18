@@ -35,8 +35,8 @@ class WikiTab(QtWidgets.QDockWidget, base.Component):
 
         self.qsettings = self.app.qsettings
 
-        self.setObjectName('wiki_tab')
-        self.setWindowTitle('Wiki')
+        self.setObjectName("wiki_tab")
+        self.setWindowTitle("Wiki")
 
         self.setFloating(False)
 
@@ -51,11 +51,11 @@ class WikiTab(QtWidgets.QDockWidget, base.Component):
 
         # Create the layout widget
         container = QtWidgets.QWidget(self)
-        container.setObjectName('wiki_tab::container')
+        container.setObjectName("wiki_tab::container")
         self._container = container
 
         layout = QtWidgets.QVBoxLayout(container)
-        layout.setObjectName('wiki_tab::layout')
+        layout.setObjectName("wiki_tab::layout")
         layout.setSpacing(0)
         layout.setContentsMargins(5, 0, 5, 5)
         self._text = QWebEngineView()
@@ -80,7 +80,9 @@ class WikiTab(QtWidgets.QDockWidget, base.Component):
         # Register the dock widget through the AppController.
         # The AppController then tries to find a saved dock location from the preferences
         # before calling the MainWindow Controller to add the widget.
-        self.app.registerDockWidget(self, location=self.settings.window.WIKI_TAB_DOCK_LOCATION)
+        self.app.registerDockWidget(
+            self, location=self.settings.window.WIKI_TAB_DOCK_LOCATION
+        )
         if not self.qsettings.value("appearance/display_wiki", False, type=bool):
             self.hide()
 

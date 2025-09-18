@@ -2,10 +2,10 @@ import time
 
 
 class StopWatch(object):
-    '''
+    """
     Tool for tracking/profiling application execution. Once initialized, this tracks elapsed
     time between "laps" which can be given a name and accessed at a later point.
-    '''
+    """
 
     def __init__(self):
         self._laps = {}

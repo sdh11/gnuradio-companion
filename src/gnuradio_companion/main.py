@@ -25,11 +25,11 @@ This is free software, and you are welcome to redistribute it.
 """
 
 LOG_LEVELS = {
-    'debug': logging.DEBUG,
-    'info': logging.INFO,
-    'warning': logging.WARNING,
-    'error': logging.ERROR,
-    'critical': logging.CRITICAL,
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
 }
 
 # Load GNU Radio
@@ -38,30 +38,39 @@ try:
     from gnuradio import gr
 except ImportError as ex:
 
-    class Dummy():
+    class Dummy:
         def version(self):
             return "0.0.0"
+
         def major_version(self):
             return "0"
+
         def api_version(self):
             return "0"
+
         def minor_version(self):
             return "0"
+
         def prefs(self):
             return {}
+
         def prefix(self):
             return "."
 
     gr = Dummy()
 
     # Throw a new exception with more information
-    print("Cannot find GNU Radio! (Have you sourced the environment file?)", file=sys.stderr)
+    print(
+        "Cannot find GNU Radio! (Have you sourced the environment file?)",
+        file=sys.stderr,
+    )
 
     # If this is a background session (not launched through a script), show a Tkinter error dialog.
     # Tkinter should already be installed default with Python, so this shouldn't add new dependencies
     if not sys.stdin.isatty():
         import tkinter
         from tkinter import messagebox
+
         # Hide the main window
         root = tkinter.Tk()
         root.withdraw()
@@ -77,7 +86,7 @@ except ImportError as ex:
 # Do this globally so it is available for both run_gtk() and run_qt()
 # TODO: Advanced logging - https://docs.python.org/3/howto/logging-cookbook.html#formatting-styles
 # Note: All other modules need to use the 'grc.<module>' convention
-log = logging.getLogger('grc')
+log = logging.getLogger("grc")
 # Set the root log name
 # Since other files are in the 'grc' module, they automatically get a child logger when using:
 #   log = logging.getLogger(__name__)
@@ -88,11 +97,12 @@ log.setLevel(logging.DEBUG)
 
 
 def run_gtk(args, log):
-    ''' Runs the GTK version of GNU Radio Companion '''
+    """Runs the GTK version of GNU Radio Companion"""
 
     import gi
-    gi.require_version('Gtk', '3.0')
-    gi.require_version('PangoCairo', '1.0')
+
+    gi.require_version("Gtk", "3.0")
+    gi.require_version("PangoCairo", "1.0")
     from gi.repository import Gtk
 
     # Delay importing until the logging is setup
@@ -103,10 +113,9 @@ def run_gtk(args, log):
     log.debug("Loading platform")
     platform = Platform(
         version=gr.version(),
-        version_parts=(gr.major_version(), gr.api_version(),
-           gr.minor_version()),
+        version_parts=(gr.major_version(), gr.api_version(), gr.minor_version()),
         prefs=gr.prefs(),
-        install_prefix=gr.prefix()
+        install_prefix=gr.prefix(),
     )
     platform.build_library()
 
@@ -117,7 +126,7 @@ def run_gtk(args, log):
 
 
 def run_qt(args, log):
-    ''' Runs the Qt version of GNU Radio Companion '''
+    """Runs the Qt version of GNU Radio Companion"""
 
     import platform
     import locale
@@ -130,13 +139,13 @@ def run_qt(args, log):
     # Delay importing until the logging is setup
     from .gui_qt.Platform import Platform
 
-    ''' Global Settings/Constants '''
+    """ Global Settings/Constants """
     # Initialize a class with all of the default settings and properties
     # TODO: Move argv to separate argument parsing class that overrides default properties?
     # TODO: Split settings/constants into separate classes rather than a single properites class?
     settings = properties.Properties(sys.argv)
 
-    ''' Translation Support '''
+    """ Translation Support """
     # Try to get the current locale. Always add English
     lc, encoding = locale.getdefaultlocale()
     if lc:
@@ -145,8 +154,9 @@ def run_qt(args, log):
     log.debug("Using locale - %s" % str(languages))
 
     # Still run even if the english translation isn't found
-    language = gettext.translation(settings.APP_NAME, settings.path.LANGUAGE, languages=languages,
-                                   fallback=True)
+    language = gettext.translation(
+        settings.APP_NAME, settings.path.LANGUAGE, languages=languages, fallback=True
+    )
     if type(language) == gettext.NullTranslations:
         log.error("Unable to find any translation")
         log.error("Default English translation missing")
@@ -155,7 +165,7 @@ def run_qt(args, log):
     # Still need to install null translation to let the system handle calls to _()
     language.install()
 
-    ''' OS Platform '''
+    """ OS Platform """
     # Figure out system specific properties and setup defaults.
     # Some properties can be overridden by preferences
     # Get the current OS
@@ -165,7 +175,7 @@ def run_qt(args, log):
         # Determine if Unity is running....
         try:
             # current_desktop = os.environ['DESKTOP_SESSION']
-            current_desktop = os.environ['XDG_CURRENT_DESKTOP']
+            current_desktop = os.environ["XDG_CURRENT_DESKTOP"]
             log.debug("Desktop Session - %s" % current_desktop)
             if current_desktop == "Unity":
                 log.debug("Detected GRC is running under unity")
@@ -185,7 +195,7 @@ def run_qt(args, log):
     else:
         log.warning("Unknown operating system")
 
-    ''' Preferences '''
+    """ Preferences """
     # TODO: Move earlier? Need to load user preferences and override the default properties/settings
 
     # The platform is loaded differently between QT and GTK, so this is required both places
@@ -196,7 +206,7 @@ def run_qt(args, log):
         version=gr.version(),
         version_parts=(gr.major_version(), gr.api_version(), gr.minor_version()),
         prefs=gr.prefs(),
-        install_prefix=gr.prefix()
+        install_prefix=gr.prefix(),
     )
     model.build_library()
 
@@ -209,13 +219,16 @@ def get_config_file_path(config_file: str = "grc.conf") -> str:
     oldpath = os.path.join(os.path.expanduser("~/.gnuradio"), config_file)
     try:
         from gnuradio.gr import paths
+
         newpath = os.path.join(paths.userconf(), config_file)
         if os.path.exists(newpath):
             return newpath
         if os.path.exists(oldpath):
-            log.warn(f"Found specification for config path '{newpath}', but file does not exist. " +
-                     f"Old default config file path '{oldpath}' exists; using that. " +
-                     "Please consider moving configuration to new location.")
+            log.warn(
+                f"Found specification for config path '{newpath}', but file does not exist. "
+                + f"Old default config file path '{oldpath}' exists; using that. "
+                + "Please consider moving configuration to new location."
+            )
             return oldpath
         # Default to the correct path if both are configured.
         # neither old, nor new path exist: create new path, return that
@@ -224,14 +237,18 @@ def get_config_file_path(config_file: str = "grc.conf") -> str:
         os.makedirs(pathdir, exist_ok=True)
         return newpath
     except ImportError:
-        log.warn("Could not retrieve GNU Radio configuration directory from GNU Radio. Trying defaults.")
+        log.warn(
+            "Could not retrieve GNU Radio configuration directory from GNU Radio. Trying defaults."
+        )
         xdgconf = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
         xdgcand = os.path.join(xdgconf, config_file)
         if os.path.exists(xdgcand):
             return xdgcand
         if os.path.exists(oldpath):
-            log.warn(f"Using legacy config path '{oldpath}'. Please consider moving configuration " +
-                     f"files to '{newpath}'.")
+            log.warn(
+                f"Using legacy config path '{oldpath}'. Please consider moving configuration "
+                + f"files to '{newpath}'."
+            )
             return oldpath
         # neither old, nor new path exist: create new path, return that
         path_parts = Path(xdgcand).parts[:-1]
@@ -244,27 +261,34 @@ def get_state_directory() -> str:
     oldpath = os.path.expanduser("~/.gnuradio")
     try:
         from gnuradio.gr import paths
+
         newpath = paths.persistent()
         if os.path.exists(newpath):
             return newpath
         if os.path.exists(oldpath):
-            log.warn(f"Found specification for persistent state path '{newpath}', but file does not exist. " +
-                     f"Old default persistent state path '{oldpath}' exists; using that. " +
-                     "Please consider moving state to new location.")
+            log.warn(
+                f"Found specification for persistent state path '{newpath}', but file does not exist. "
+                + f"Old default persistent state path '{oldpath}' exists; using that. "
+                + "Please consider moving state to new location."
+            )
             return oldpath
         # Default to the correct path if both are configured.
         # neither old, nor new path exist: create new path, return that
         os.makedirs(newpath, exist_ok=True)
         return newpath
     except (ImportError, NameError):
-        log.warn("Could not retrieve GNU Radio persistent state directory from GNU Radio. Trying defaults.")
+        log.warn(
+            "Could not retrieve GNU Radio persistent state directory from GNU Radio. Trying defaults."
+        )
         xdgstate = os.getenv("XDG_STATE_HOME", os.path.expanduser("~/.local/state"))
         xdgcand = os.path.join(xdgstate, "gnuradio")
         if os.path.exists(xdgcand):
             return xdgcand
         if os.path.exists(oldpath):
-            log.warn(f"Using legacy state path '{oldpath}'. Please consider moving state " +
-                     f"files to '{newpath}'.")
+            log.warn(
+                f"Using legacy state path '{oldpath}'. Please consider moving state "
+                + f"files to '{newpath}'."
+            )
             return oldpath
         # neither old, nor new path exist: create new path, return that
         os.makedirs(xdgcand, exist_ok=True)
@@ -273,71 +297,89 @@ def get_state_directory() -> str:
 
 def main():
     grc_version_from_config = ""
-    grc_qt_config_file = get_config_file_path('grc_qt.conf')
+    grc_qt_config_file = get_config_file_path("grc_qt.conf")
     if os.path.isfile(grc_qt_config_file):
         try:
             from qtpy.QtCore import QSettings
+
             qsettings = QSettings(grc_qt_config_file, QSettings.IniFormat)
-            grc_version_from_config = qsettings.value('grc/default_grc', "", type=str)
+            grc_version_from_config = qsettings.value("grc/default_grc", "", type=str)
         except Exception as e:
             log.warning("main.py could not read grc_qt.conf")
             log.warning(e)
 
     # Argument parsing
     parser = argparse.ArgumentParser()
-        # description=VERSION_AND_DISCLAIMER_TEMPLATE % gr.version())
-    parser.add_argument('flow_graphs', nargs='*')
+    # description=VERSION_AND_DISCLAIMER_TEMPLATE % gr.version())
+    parser.add_argument("flow_graphs", nargs="*")
 
     # Custom Configurations
     # TODO: parser.add_argument('--config')
 
     # Logging support
-    parser.add_argument('--log', choices=['debug', 'info', 'warning', 'error', 'critical'], default='info')
+    parser.add_argument(
+        "--log",
+        choices=["debug", "info", "warning", "error", "critical"],
+        default="info",
+    )
     # TODO: parser.add_argument('--log-output')
 
     # Graphics framework (QT or GTK)
-    gui_group = parser.add_argument_group('Framework')
+    gui_group = parser.add_argument_group("Framework")
     gui_group_exclusive = gui_group.add_mutually_exclusive_group()
-    gui_group_exclusive.add_argument("--qt", dest='framework', action='store_const', const='qt',
-                                     help="GNU Radio Companion (QT)")
-    gui_group_exclusive.add_argument("--gtk", dest='framework', action='store_const', const='gtk',
-                                     help="GNU Radio Companion (GTK)")
+    gui_group_exclusive.add_argument(
+        "--qt",
+        dest="framework",
+        action="store_const",
+        const="qt",
+        help="GNU Radio Companion (QT)",
+    )
+    gui_group_exclusive.add_argument(
+        "--gtk",
+        dest="framework",
+        action="store_const",
+        const="gtk",
+        help="GNU Radio Companion (GTK)",
+    )
 
     # Default options if not already set with add_argument()
     args = parser.parse_args()
 
     # Print the startup message
     py_version = sys.version.split()[0]
-    log.info("Starting GNU Radio Companion {} (Python {})".format(gr.version(), py_version))
+    log.info(
+        "Starting GNU Radio Companion {} (Python {})".format(gr.version(), py_version)
+    )
 
     # File logging
     log_file = os.path.join(get_state_directory(), "grc.log")
     try:
         fileHandler = logging.FileHandler(log_file)
-        file_msg_format = '%(asctime)s [%(levelname)s] %(message)s'
-        if args.log == 'debug':
-            file_msg_format += ' (%(name)s:%(lineno)s)'
+        file_msg_format = "%(asctime)s [%(levelname)s] %(message)s"
+        if args.log == "debug":
+            file_msg_format += " (%(name)s:%(lineno)s)"
             fileHandler.setLevel(logging.DEBUG)
-            log.info(f'Logging to {log_file} (DEBUG and higher)')
+            log.info(f"Logging to {log_file} (DEBUG and higher)")
         else:
             fileHandler.setLevel(logging.INFO)
-            log.info(f'Logging to {log_file} (INFO and higher)')
+            log.info(f"Logging to {log_file} (INFO and higher)")
         file_formatter = logging.Formatter(file_msg_format)
         fileHandler.setFormatter(file_formatter)
         log.addHandler(fileHandler)
     except (PermissionError, FileNotFoundError) as e:
-        log.error(f'Cannot write to {log_file} - {e}')
+        log.error(f"Cannot write to {log_file} - {e}")
 
     # GUI Framework
-    if args.framework == 'qt':
+    if args.framework == "qt":
         run_qt(args, log)
-    elif args.framework == 'gtk':
+    elif args.framework == "gtk":
         run_gtk(args, log)
     else:  # args.framework == None
-        if grc_version_from_config == 'grc_qt':
+        if grc_version_from_config == "grc_qt":
             run_qt(args, log)
         else:
             run_gtk(args, log)
+
 
 if __name__ == "__main__":
     main()

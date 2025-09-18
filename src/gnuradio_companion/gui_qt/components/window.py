@@ -47,7 +47,7 @@ from .undoable_actions import (
     NewElementAction,
     DeleteElementAction,
     BlockPropsChangeAction,
-    BussifyAction
+    BussifyAction,
 )
 from .preferences import PreferencesDialog
 from .oot_browser import OOTBrowser
@@ -75,9 +75,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         self.setObjectName("main")
         self.setWindowTitle(_("window-title"))
         self.setDockOptions(
-            QtWidgets.QMainWindow.AllowNestedDocks |
-            QtWidgets.QMainWindow.AllowTabbedDocks |
-            QtWidgets.QMainWindow.AnimatedDocks
+            QtWidgets.QMainWindow.AllowNestedDocks
+            | QtWidgets.QMainWindow.AllowTabbedDocks
+            | QtWidgets.QMainWindow.AnimatedDocks
         )
         self.progress_bar = QtWidgets.QProgressBar()
         self.statusBar().addPermanentWidget(self.progress_bar)
@@ -159,15 +159,13 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         self.tabWidget.tabCloseRequested.connect(
             lambda index: self.close_triggered(index)
         )
-        self.tabWidget.currentChanged.connect(
-            lambda index: self.tab_triggered(index)
-        )
+        self.tabWidget.currentChanged.connect(lambda index: self.tab_triggered(index))
         self.setCentralWidget(self.tabWidget)
 
         self.clipboard = None
         self.undoView = None
 
-        files_open = list(self.app.qsettings.value('window/files_open', [])) + file_path
+        files_open = list(self.app.qsettings.value("window/files_open", [])) + file_path
         grc_file_found = False
         if files_open:
             for file in files_open:
@@ -207,7 +205,10 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
     def handle_editor_action(self, key):
         # Calculate the position to insert a new block
         # Perhaps we should add a random component, as we may add several blocks
-        pos = (self.currentFlowgraphScene.sceneRect().width() / 2, self.currentFlowgraphScene.sceneRect().height() / 2)
+        pos = (
+            self.currentFlowgraphScene.sceneRect().width() / 2,
+            self.currentFlowgraphScene.sceneRect().height() / 2,
+        )
         if key == VariableEditorAction.DELETE_BLOCK:
             self.delete_triggered()
         elif key == VariableEditorAction.DISABLE_BLOCK:
@@ -215,9 +216,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         elif key == VariableEditorAction.ENABLE_BLOCK:
             self.enable_triggered()
         elif key == VariableEditorAction.ADD_VARIABLE:
-            self.currentFlowgraphScene.add_block('variable', pos)
+            self.currentFlowgraphScene.add_block("variable", pos)
         elif key == VariableEditorAction.ADD_IMPORT:
-            self.currentFlowgraphScene.add_block('import', pos)
+            self.currentFlowgraphScene.add_block("import", pos)
         else:
             log.debug(f"{key} not implemented yet")
         self.currentFlowgraphScene.clearSelection()
@@ -485,11 +486,7 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         actions["properties"].setEnabled(False)
 
         # View Actions
-        actions["zoom_in"] = Action(
-            Icons("zoom-in"),
-            _("Zoom &in"),
-            self
-        )
+        actions["zoom_in"] = Action(Icons("zoom-in"), _("Zoom &in"), self)
         actions["zoom_in"].setShortcuts([Keys.ZoomIn, "Ctrl+="])
         actions["zoom_out"] = Action(
             Icons("zoom-out"),
@@ -914,7 +911,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
     def populate_libraries_w_examples(self, example_tuple):
         examples, examples_w_block, designated_examples_w_block = example_tuple
         self.ExampleBrowser.populate(examples)
-        self.app.BlockLibrary.populate_w_examples(examples_w_block, designated_examples_w_block)
+        self.app.BlockLibrary.populate_w_examples(
+            examples_w_block, designated_examples_w_block
+        )
         self.progress_bar.reset()
         self.progress_bar.hide()
         self.examples_found = True
@@ -972,7 +971,7 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
                 for block in self.currentFlowgraphScene.core.blocks:
                     block.gui.create_shapes_and_labels()
                 self.currentFlowgraphScene.update_elements_to_draw()
-                if hasattr(self.app, 'VariableEditor'):
+                if hasattr(self.app, "VariableEditor"):
                     self.app.VariableEditor.set_scene(self.currentFlowgraphScene)
                 self.updateActions()
             else:
@@ -998,7 +997,10 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
                 return
 
             log.info(f"Saved {filename}")
-            self.tabWidget.tabBar().setTabTextColor(self.tabWidget.currentIndex(), self.palette().color(self.palette().WindowText))
+            self.tabWidget.tabBar().setTabTextColor(
+                self.tabWidget.currentIndex(),
+                self.palette().color(self.palette().WindowText),
+            )
             self.currentFlowgraphScene.set_saved(True)
         else:
             log.debug("Flowgraph does not have a filename")
@@ -1009,8 +1011,8 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         log.debug("Save As")
         file_dialog = QtWidgets.QFileDialog()
         file_dialog.setWindowTitle(self.actions["save"].statusTip())
-        file_dialog.setNameFilter('Flow Graph Files (*.grc)')
-        file_dialog.setDefaultSuffix('grc')
+        file_dialog.setNameFilter("Flow Graph Files (*.grc)")
+        file_dialog.setDefaultSuffix("grc")
         file_dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         filename = None
         if file_dialog.exec_() == QtWidgets.QFileDialog.Accepted:
@@ -1025,9 +1027,14 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
                 return
 
             log.info(f"Saved (as) {filename}")
-            self.tabWidget.tabBar().setTabTextColor(self.tabWidget.currentIndex(), self.palette().color(self.palette().WindowText))
+            self.tabWidget.tabBar().setTabTextColor(
+                self.tabWidget.currentIndex(),
+                self.palette().color(self.palette().WindowText),
+            )
             self.currentFlowgraphScene.set_saved(True)
-            self.tabWidget.setTabText(self.tabWidget.currentIndex(), os.path.basename(filename))
+            self.tabWidget.setTabText(
+                self.tabWidget.currentIndex(), os.path.basename(filename)
+            )
         else:
             log.debug("Cancelled Save As action")
         self.updateActions()
@@ -1036,8 +1043,8 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         log.debug("Save Copy")
         file_dialog = QtWidgets.QFileDialog()
         file_dialog.setWindowTitle(self.actions["save"].statusTip())
-        file_dialog.setNameFilter('Flow Graph Files (*.grc)')
-        file_dialog.setDefaultSuffix('grc')
+        file_dialog.setNameFilter("Flow Graph Files (*.grc)")
+        file_dialog.setDefaultSuffix("grc")
         file_dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
 
         filename = None
@@ -1065,7 +1072,7 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         if tab_index < 0:
             return
         self.tabWidget.setCurrentIndex(tab_index)
-        if hasattr(self.app, 'VariableEditor'):
+        if hasattr(self.app, "VariableEditor"):
             self.app.VariableEditor.set_scene(self.currentFlowgraphScene)
         self.updateActions()
 
@@ -1098,9 +1105,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
                 None,
                 "Save flowgraph?",
                 message,
-                QtWidgets.QMessageBox.Discard |
-                QtWidgets.QMessageBox.Cancel |
-                QtWidgets.QMessageBox.Save,
+                QtWidgets.QMessageBox.Discard
+                | QtWidgets.QMessageBox.Cancel
+                | QtWidgets.QMessageBox.Save,
             )
 
             if response == QtWidgets.QMessageBox.Discard:
@@ -1230,7 +1237,7 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         log.debug("toggle_source_bus")
         self.currentFlowgraphScene.set_saved(False)
         self.tabWidget.tabBar().setTabTextColor(self.tabWidget.currentIndex(), Qt.red)
-        bussifyCommand = BussifyAction(self.currentFlowgraphScene, 'source')
+        bussifyCommand = BussifyAction(self.currentFlowgraphScene, "source")
         self.currentFlowgraphScene.undoStack.push(bussifyCommand)
         self.updateActions()
         self.currentFlowgraphScene.update()
@@ -1239,7 +1246,7 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         log.debug("toggle_sink_bus")
         self.currentFlowgraphScene.set_saved(False)
         self.tabWidget.tabBar().setTabTextColor(self.tabWidget.currentIndex(), Qt.red)
-        bussifyCommand = BussifyAction(self.currentFlowgraphScene, 'sink')
+        bussifyCommand = BussifyAction(self.currentFlowgraphScene, "sink")
         self.currentFlowgraphScene.undoStack.push(bussifyCommand)
         self.updateActions()
         self.currentFlowgraphScene.update()
@@ -1377,18 +1384,21 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
             self.generate_triggered()
             if self.currentView.generator:
                 xterm = self.app.qsettings.value("grc/xterm_executable", "")
-                '''if self.config.xterm_missing() != xterm:
+                """if self.config.xterm_missing() != xterm:
                     if not os.path.exists(xterm):
                         Dialogs.show_missing_xterm(main, xterm)
-                    self.config.xterm_missing(xterm)'''
-                if self.currentFlowgraphScene.saved and self.currentFlowgraphScene.filename:
+                    self.config.xterm_missing(xterm)"""
+                if (
+                    self.currentFlowgraphScene.saved
+                    and self.currentFlowgraphScene.filename
+                ):
                     # Save config before execution
                     # self.config.save()
                     ExecFlowGraphThread(
                         view=self.currentView,
                         flowgraph=self.currentFlowgraph,
                         xterm_executable=xterm,
-                        callback=self.updateActions
+                        callback=self.updateActions,
                     )
 
     def kill_triggered(self):
@@ -1428,8 +1438,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         """
 
         message += "\n".join(
-            '<tr bgcolor="{color}"><td><tt>{name}</tt></td></tr>'
-            "".format(color=color, name=name)
+            '<tr bgcolor="{color}"><td><tt>{name}</tt></td></tr>'.format(
+                color=color, name=name
+            )
             for name, color in colors
         )
         message += "</tbody></table>"
@@ -1495,7 +1506,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
             if len(ex_dialog.browser.examples_dict) == 0:
                 ad = QtWidgets.QMessageBox()
                 ad.setWindowTitle("GRC: No examples found")
-                ad.setText("GRC did not find any examples. Please ensure that the example path in grc.conf is correct.")
+                ad.setText(
+                    "GRC did not find any examples. Please ensure that the example path in grc.conf is correct."
+                )
                 ad.exec()
                 return
 
@@ -1521,7 +1534,9 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
 
         files_open = []
         range_ = reversed(range(self.tabWidget.count()))
-        for idx in range_:  # Close the rightmost first. It'll be the first element in files_open
+        for idx in (
+            range_
+        ):  # Close the rightmost first. It'll be the first element in files_open
             tab = self.tabWidget.widget(idx)
             file_path = self.currentFlowgraphScene.filename
             if file_path:
@@ -1533,18 +1548,26 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
 
         # Save the panel settings
         # Console
-        self.app.qsettings.setValue('appearance/display_console', not self.app.Console.isHidden())
+        self.app.qsettings.setValue(
+            "appearance/display_console", not self.app.Console.isHidden()
+        )
         # Block Library
-        self.app.qsettings.setValue('appearance/display_blocklibrary', not self.app.BlockLibrary.isHidden())
+        self.app.qsettings.setValue(
+            "appearance/display_blocklibrary", not self.app.BlockLibrary.isHidden()
+        )
         # Wiki
-        self.app.qsettings.setValue('appearance/display_wiki', not self.app.WikiTab.isHidden())
+        self.app.qsettings.setValue(
+            "appearance/display_wiki", not self.app.WikiTab.isHidden()
+        )
         # Variable Editor
-        self.app.qsettings.setValue('appearance/display_variable_editor', not self.app.VariableEditor.isHidden())
+        self.app.qsettings.setValue(
+            "appearance/display_variable_editor", not self.app.VariableEditor.isHidden()
+        )
 
         # Write the leftmost tab to file first
-        self.app.qsettings.setValue('window/files_open', reversed(files_open))
-        self.app.qsettings.setValue('window/windowState', self.saveState())
-        self.app.qsettings.setValue('window/geometry', self.saveGeometry())
+        self.app.qsettings.setValue("window/files_open", reversed(files_open))
+        self.app.qsettings.setValue("window/windowState", self.saveState())
+        self.app.qsettings.setValue("window/geometry", self.saveGeometry())
         self.app.qsettings.sync()
 
         # TODO: Make sure all flowgraphs have been saved
@@ -1585,7 +1608,7 @@ class MainWindow(QtWidgets.QMainWindow, base.Component):
         self.profiler.disable()
         log.info("Stopping profiler")
         stats = pstats.Stats(self.profiler)
-        stats.dump_stats('stats.prof')
+        stats.dump_stats("stats.prof")
 
     def get_open_flowgraphs(self):
         index = self.tabWidget.count()

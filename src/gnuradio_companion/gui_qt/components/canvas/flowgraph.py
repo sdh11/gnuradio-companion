@@ -200,9 +200,7 @@ class FlowgraphScene(QtWidgets.QGraphicsScene, base.Component):
         block = self.platform.blocks[block_key]
         # Pull out its params (keep in mind we still havent added the dialog box that lets you change param values so this is more for show)
         params = []
-        for (
-            p
-        ) in (
+        for p in (
             block.parameters_data
         ):  # block.parameters_data is a list of dicts, one per param
             if "label" in p:  # for now let's just show it as long as it has a label
@@ -300,7 +298,9 @@ class FlowgraphScene(QtWidgets.QGraphicsScene, base.Component):
     def mouseMoveEvent(self, event):
         if self.mousePressed:
             if not self.dummy_arrow and not self.moving_blocks and self.start_port:
-                self.dummy_arrow = DummyConnection(self, self.start_port.connection_point, self.clickPos)
+                self.dummy_arrow = DummyConnection(
+                    self, self.start_port.connection_point, self.clickPos
+                )
                 self.addItem(self.dummy_arrow)
         self.view.setSceneRect(self.itemsBoundingRect())
         if self.dummy_arrow:
@@ -413,7 +413,8 @@ class FlowgraphScene(QtWidgets.QGraphicsScene, base.Component):
         # get connections between selected blocks
         connections = list(
             filter(
-                lambda c: c.source_block.gui in g_blocks and c.sink_block.gui in g_blocks,
+                lambda c: c.source_block.gui in g_blocks
+                and c.sink_block.gui in g_blocks,
                 self.core.connections,
             )
         )
@@ -504,20 +505,21 @@ class FlowgraphScene(QtWidgets.QGraphicsScene, base.Component):
             if not editor:
                 return
             updater = functools.partial(
-                self.handle_external_editor_change, target=target)
+                self.handle_external_editor_change, target=target
+            )
             editor = self._external_updaters[target] = ExternalEditor(
-                editor=editor,
-                name=target[0], value=param.get_value(),
-                callback=updater
+                editor=editor, name=target[0], value=param.get_value(), callback=updater
             )
             editor.start()
         try:
             editor.open_editor()
         except Exception as e:
             # Problem launching the editor. Need to select a new editor.
-            log.error('Error opening an external editor. Please select a different editor.\n')
+            log.error(
+                "Error opening an external editor. Please select a different editor.\n"
+            )
             # Reset the editor to force the user to select a new one.
-            self.parent_platform.config.editor = ''
+            self.parent_platform.config.editor = ""
             self.remove_external_editor(target=target)
 
     def remove_external_editor(self, target=None, param=None):

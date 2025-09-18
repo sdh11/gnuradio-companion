@@ -40,7 +40,7 @@ Keys = QtGui.QKeySequence
 log = logging.getLogger(f"grc.application.{__name__}")
 
 
-HTML = '''
+HTML = """
 <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\"
 \"http://www.w3.org/TR/REC-html40/strict.dtd\">
 <html>
@@ -75,7 +75,7 @@ HTML = '''
     </style>
 </head>
 </html>
-'''
+"""
 
 
 class Console(QtWidgets.QDockWidget, base.Component):
@@ -84,30 +84,32 @@ class Console(QtWidgets.QDockWidget, base.Component):
 
         self.qsettings = self.app.qsettings
 
-        self.setObjectName('console')
-        self.setWindowTitle('Console')
+        self.setObjectName("console")
+        self.setWindowTitle("Console")
         self.level = level
 
         # GUI Widgets
 
         # Create the layout widget
         container = QtWidgets.QWidget(self)
-        container.setObjectName('console::container')
+        container.setObjectName("console::container")
         self._container = container
 
         layout = QtWidgets.QHBoxLayout(container)
-        layout.setObjectName('console::layout')
+        layout.setObjectName("console::layout")
         layout.setSpacing(0)
         layout.setContentsMargins(5, 0, 5, 5)
         self._layout = layout
 
         # Console output widget
         text = QtWidgets.QTextEdit(container)
-        text.setObjectName('console::text')
+        text.setObjectName("console::text")
         text.setUndoRedoEnabled(False)
         text.setReadOnly(True)
         text.setCursorWidth(0)
-        text.setTextInteractionFlags(QtCore.Qt.TextSelectableByKeyboard | QtCore.Qt.TextSelectableByMouse)
+        text.setTextInteractionFlags(
+            QtCore.Qt.TextSelectableByKeyboard | QtCore.Qt.TextSelectableByMouse
+        )
         text.setHtml(textwrap.dedent(HTML))
         self._text = text
 
@@ -138,7 +140,9 @@ class Console(QtWidgets.QDockWidget, base.Component):
         # Register the dock widget through the AppController.
         # The AppController then tries to find a saved dock location from the preferences
         # before calling the MainWindow Controller to add the widget.
-        self.app.registerDockWidget(self, location=self.settings.window.CONSOLE_DOCK_LOCATION)
+        self.app.registerDockWidget(
+            self, location=self.settings.window.CONSOLE_DOCK_LOCATION
+        )
 
         # Register the menus
         self.app.registerMenu(self.menus["console"])
@@ -152,7 +156,7 @@ class Console(QtWidgets.QDockWidget, base.Component):
         log.parent.addHandler(handler)
         self.handler = handler
 
-        self.actions['show_level'].setChecked = True
+        self.actions["show_level"].setChecked = True
         self.handler.show_level = True
         self.enabled = False
 
@@ -165,20 +169,35 @@ class Console(QtWidgets.QDockWidget, base.Component):
     # Actions
 
     def createActions(self, actions):
-        ''' Defines all actions for this view. '''
+        """Defines all actions for this view."""
 
         log.debug("Creating actions")
 
         # File Actions
-        actions['save'] = Action(Icons("document-save"), _("save"), self, statusTip=_("save-tooltip"))
-        actions['clear'] = Action(Icons("document-close"), _("clear"), self, statusTip=_("clear-tooltip"))
-        actions['show_level'] = Action(_("show-level"), self, statusTip=_("show-level"), checkable=True, checked=True)
+        actions["save"] = Action(
+            Icons("document-save"), _("save"), self, statusTip=_("save-tooltip")
+        )
+        actions["clear"] = Action(
+            Icons("document-close"), _("clear"), self, statusTip=_("clear-tooltip")
+        )
+        actions["show_level"] = Action(
+            _("show-level"),
+            self,
+            statusTip=_("show-level"),
+            checkable=True,
+            checked=True,
+        )
 
-        actions['auto_scroll'] = Action(
-            _("auto-scroll"), self, statusTip=_("auto-scroll"), checkable=True, checked=True)
+        actions["auto_scroll"] = Action(
+            _("auto-scroll"),
+            self,
+            statusTip=_("auto-scroll"),
+            checkable=True,
+            checked=True,
+        )
 
     def createMenus(self, actions, menus):
-        ''' Setup the view's menus '''
+        """Setup the view's menus"""
 
         log.debug("Creating menus")
 
@@ -203,7 +222,8 @@ class Console(QtWidgets.QDockWidget, base.Component):
             self._text.append(line)
             if self.actions["auto_scroll"].isChecked():
                 self._text.verticalScrollBar().setValue(
-                    self._text.verticalScrollBar().maximum())
+                    self._text.verticalScrollBar().maximum()
+                )
 
     # Handlers for the view actions
     def clear_triggered(self):
@@ -217,7 +237,7 @@ class Console(QtWidgets.QDockWidget, base.Component):
 
 
 class ReportsHandler(logging.Handler):  # Inherit from logging.Handler
-    ''' Writes out logs to the reporst window '''
+    """Writes out logs to the reporst window"""
 
     def __init__(self, add_line, show_level=True, short_level=True):
         # run the regular Handler __init__
@@ -247,30 +267,30 @@ class ReportsHandler(logging.Handler):  # Inherit from logging.Handler
         output = "{0}{1}{2}"
         level = self.formatLevelLength(levelname)
         if levelname == "INFO":
-            return output.format("<font color=\"Green\"><b>", level, "</b></font>")
+            return output.format('<font color="Green"><b>', level, "</b></font>")
         elif levelname == "WARNING":
-            return output.format("<font color=\"Orange\"><b>", level, "</b></font>")
+            return output.format('<font color="Orange"><b>', level, "</b></font>")
         elif levelname == "ERROR":
-            return output.format("<font color=\"Red\"><b>", level, "</b></font>")
+            return output.format('<font color="Red"><b>', level, "</b></font>")
         elif levelname == "CRITICAL":
-            return output.format("<font color=\"Red\"><b>", level, "</b></font>")
+            return output.format('<font color="Red"><b>', level, "</b></font>")
         else:
-            return output.format("<font color=\"Blue\"><b>", level, "</b></font>")
+            return output.format('<font color="Blue"><b>', level, "</b></font>")
 
     def formatLevelShort(self, levelname):
-        return f'[{levelname[0:1]}]'
+        return f"[{levelname[0:1]}]"
 
     def formatLevelLong(self, levelname):
         output = "{0:<10}"
         if levelname in ["DEBUG", "INFO", "WARNING"]:
-            return output.format(f'[{levelname.capitalize()}]')
+            return output.format(f"[{levelname.capitalize()}]")
         else:
-            return output.format(f'[{levelname.upper()}]')
+            return output.format(f"[{levelname.upper()}]")
 
     def formatOutput(self):
-        ''' Returns the correct output format based on internal settings '''
+        """Returns the correct output format based on internal settings"""
         if self.show_level:
             if self.short_level:
-                return "<tr><td width=\"25\">{0}</td><td><pre>{1}</pre></td></tr>"
-            return "<tr><td width=\"75\">{0}</td><td><pre>{1}</pre></td></tr>"
+                return '<tr><td width="25">{0}</td><td><pre>{1}</pre></td></tr>'
+            return '<tr><td width="75">{0}</td><td><pre>{1}</pre></td></tr>'
         return "<tr><td><pre>{0}</pre></td></tr>"

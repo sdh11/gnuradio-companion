@@ -38,15 +38,21 @@ class GUIPort(QGraphicsItem):
         QGraphicsItem.__init__(self)
 
         self.y_offset = 0
-        self.height = 3 * 15.0 if self.core.dtype == 'bus' else 15.0
+        self.height = 3 * 15.0 if self.core.dtype == "bus" else 15.0
         self.width = 15.0
 
         if self.core._dir == "sink":
             self.connection_point = self.mapToScene(QPointF(0.0, self.height / 2.0))
-            self.ctrl_point = self.mapToScene(QPointF(0.0, self.height / 2.0) - QPointF(5.0, 0.0))
+            self.ctrl_point = self.mapToScene(
+                QPointF(0.0, self.height / 2.0) - QPointF(5.0, 0.0)
+            )
         else:
-            self.connection_point = self.mapToScene(QPointF(self.width, self.height / 2.0))
-            self.ctrl_point = self.mapToScene(QPointF(self.width, self.height / 2.0) + QPointF(5.0, 0.0))
+            self.connection_point = self.mapToScene(
+                QPointF(self.width, self.height / 2.0)
+            )
+            self.ctrl_point = self.mapToScene(
+                QPointF(self.width, self.height / 2.0) + QPointF(5.0, 0.0)
+            )
 
         self.setFlag(QGraphicsItem.ItemSendsScenePositionChanges)
 
@@ -59,7 +65,7 @@ class GUIPort(QGraphicsItem):
         self._hovering = False
         self.auto_hide_port_labels = False
 
-        self.font = QFont('Helvetica', 8)
+        self.font = QFont("Helvetica", 8)
         self.fm = QFontMetrics(self.font)
 
         # TODO: Move somewhere else? Not necessarily
@@ -72,10 +78,16 @@ class GUIPort(QGraphicsItem):
     def update_connections(self):
         if self.core._dir == "sink":
             self.connection_point = self.mapToScene(QPointF(-10.0, self.height / 2.0))
-            self.ctrl_point = self.mapToScene(QPointF(-10.0, self.height / 2.0) - QPointF(100.0, 0.0))
+            self.ctrl_point = self.mapToScene(
+                QPointF(-10.0, self.height / 2.0) - QPointF(100.0, 0.0)
+            )
         else:
-            self.connection_point = self.mapToScene(QPointF(self.width, self.height / 2.0))
-            self.ctrl_point = self.mapToScene(QPointF(self.width, self.height / 2.0) + QPointF(100.0, 0.0))
+            self.connection_point = self.mapToScene(
+                QPointF(self.width, self.height / 2.0)
+            )
+            self.ctrl_point = self.mapToScene(
+                QPointF(self.width, self.height / 2.0) + QPointF(100.0, 0.0)
+            )
 
         for conn in self.core.connections():
             conn.gui.set_rotation(self.parentItem().rotation())
@@ -87,7 +99,8 @@ class GUIPort(QGraphicsItem):
 
     def create_shapes_and_labels(self):
         self.auto_hide_port_labels = self.core.parent.parent.gui.app.qsettings.value(
-            'grc/auto_hide_port_labels', type=bool)
+            "grc/auto_hide_port_labels", type=bool
+        )
         """
         The GUI port is instantiated before its parent block. Therefore we set the parent here,
         not in the constructor. Exception: dummy block ports, see __init__() above
@@ -111,9 +124,11 @@ class GUIPort(QGraphicsItem):
         if not self.core.parent.enabled:
             color = colors.BLOCK_DISABLED_COLOR
         elif self.core.domain == Constants.GR_MESSAGE_DOMAIN:
-            color = colors.PORT_TYPE_TO_COLOR.get('message')
+            color = colors.PORT_TYPE_TO_COLOR.get("message")
         else:
-            color = colors.PORT_TYPE_TO_COLOR.get(self.core.dtype) or colors.PORT_TYPE_TO_COLOR.get('')
+            color = colors.PORT_TYPE_TO_COLOR.get(
+                self.core.dtype
+            ) or colors.PORT_TYPE_TO_COLOR.get("")
         self._bg_color = color
         self._border_color = color
 
@@ -147,13 +162,23 @@ class GUIPort(QGraphicsItem):
 
             if self.core._dir == "sink":
                 if block_rotation == 180:
-                    painter.drawText(QRectF(max(0, self.width - 15), 0, self.width,
-                                     self.height), Qt.AlignCenter, self.core.name)
+                    painter.drawText(
+                        QRectF(max(0, self.width - 15), 0, self.width, self.height),
+                        Qt.AlignCenter,
+                        self.core.name,
+                    )
                 else:
-                    painter.drawText(QRectF(-max(0, self.width - 15), 0, self.width,
-                                     self.height), Qt.AlignCenter, self.core.name)
+                    painter.drawText(
+                        QRectF(-max(0, self.width - 15), 0, self.width, self.height),
+                        Qt.AlignCenter,
+                        self.core.name,
+                    )
             else:
-                painter.drawText(QRectF(0, 0, self.width, self.height), Qt.AlignCenter, self.core.name)
+                painter.drawText(
+                    QRectF(0, 0, self.width, self.height),
+                    Qt.AlignCenter,
+                    self.core.name,
+                )
 
     def center(self):
         return QPointF(self.x() + self.width / 2, self.y() + self.height / 2)

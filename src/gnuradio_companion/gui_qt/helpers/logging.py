@@ -2,7 +2,7 @@ import logging
 
 
 class GRCHandler(logging.Handler):  # Inherit from logging.Handler
-    ''' Custom log handler for GRC. Stores log entries to be viewed using the GRC debug window. '''
+    """Custom log handler for GRC. Stores log entries to be viewed using the GRC debug window."""
 
     def __init__(self, maxLength=256):
         # run the regular Handler __init__
@@ -18,16 +18,16 @@ class GRCHandler(logging.Handler):  # Inherit from logging.Handler
 
 
 class ConsoleFormatter(logging.Formatter):
-    '''
-     Custom log formatter that nicely truncates the log message and log levels
-      - Verbose mode outputs: time, level, message, name, filename, and line number
-      - Normal mode output varies based on terminal size:
-            w < 80       - Level, Message (min length 40)
-            80 < w < 120 - Level, Message, File, Line (25)
-            120 < w      - Level, Message, Name, File, Line
-      - Color mode ouptuts the same variable sizes and uses the blessings module
-        to add color
-    '''
+    """
+    Custom log formatter that nicely truncates the log message and log levels
+     - Verbose mode outputs: time, level, message, name, filename, and line number
+     - Normal mode output varies based on terminal size:
+           w < 80       - Level, Message (min length 40)
+           80 < w < 120 - Level, Message, File, Line (25)
+           120 < w      - Level, Message, Name, File, Line
+     - Color mode ouptuts the same variable sizes and uses the blessings module
+       to add color
+    """
 
     # TODO: Better handle multi line messages. Need to indent them or something
 
@@ -35,6 +35,7 @@ class ConsoleFormatter(logging.Formatter):
         # Test for blessings formatter
         try:
             from blessings import Terminal
+
             self.terminal = Terminal()
             self.formatLevel = self.formatLevelColor
         except:
@@ -50,6 +51,7 @@ class ConsoleFormatter(logging.Formatter):
         # Determine size and mode
         # TODO: Need to update the sizes depending on short or long outputs
         import shutil
+
         size = shutil.get_terminal_size()
         width = max(40, size.columns - 10)
         if size.columns < 80:
@@ -74,22 +76,24 @@ class ConsoleFormatter(logging.Formatter):
     def medium(self, record):
         message = self.formatMessage(record.msg, self.width)
         level = self.formatLevel(record.levelname)
-        output = '{0} -- {1:<' + str(self.width) + '} ({2}:{3})'
+        output = "{0} -- {1:<" + str(self.width) + "} ({2}:{3})"
         return output.format(level, message, record.filename, record.lineno)
 
     def long(self, record):
         message = self.formatMessage(record.msg, self.width)
         level = self.formatLevel(record.levelname)
-        output = '{0} -- {1:<' + str(self.width) + '} {2} ({3}:{4})'
-        return output.format(level, message, record.name, record.filename, record.lineno)
+        output = "{0} -- {1:<" + str(self.width) + "} {2} ({3}:{4})"
+        return output.format(
+            level, message, record.name, record.filename, record.lineno
+        )
 
-    ''' Verbose formatter '''
+    """ Verbose formatter """
 
     def verbose(self, record):
         # TODO: Still need to implement this
         pass
 
-    ''' Level and message formatters '''
+    """ Level and message formatters """
     # Nicely format the levelname
     # Level name can be formated to either short or long, and also with color
 
@@ -111,7 +115,7 @@ class ConsoleFormatter(logging.Formatter):
             return output.format(term.blue, "", level, term.normal)
 
     def formatLevelPlain(self, levelname):
-        ''' Format the level name without color. formatLevelLength points to the right function '''
+        """Format the level name without color. formatLevelLength points to the right function"""
         return self.formatLevelLength(levelname)
 
     def formatLevelShort(self, levelname):
@@ -128,5 +132,5 @@ class ConsoleFormatter(logging.Formatter):
         # First, strip out any newline for console output
         message = message.rstrip()
         if len(message) > width:
-            return (message[:(width - 3)] + "...")
+            return message[: (width - 3)] + "..."
         return message

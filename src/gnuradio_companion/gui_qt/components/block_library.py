@@ -20,8 +20,17 @@
 import logging
 
 from qtpy.QtCore import QUrl, Qt, QVariant
-from qtpy.QtWidgets import (QLineEdit, QTreeView, QMenu, QDockWidget, QWidget,
-                            QAction, QVBoxLayout, QAbstractItemView, QCompleter)
+from qtpy.QtWidgets import (
+    QLineEdit,
+    QTreeView,
+    QMenu,
+    QDockWidget,
+    QWidget,
+    QAction,
+    QVBoxLayout,
+    QAbstractItemView,
+    QCompleter,
+)
 from qtpy.QtGui import QStandardItem, QStandardItemModel
 
 # Custom modules
@@ -305,7 +314,11 @@ class BlockLibrary(QDockWidget, base.Component):
         if v_blocks:
             self._library.expandAll()
 
-    def populate_w_examples(self, examples_w_block: dict[str, set[str]], designated_examples_w_block: dict[str, set[str]]):
+    def populate_w_examples(
+        self,
+        examples_w_block: dict[str, set[str]],
+        designated_examples_w_block: dict[str, set[str]],
+    ):
         """
         Store the examples in the block library.
         See the ExampleBrowser for more info.

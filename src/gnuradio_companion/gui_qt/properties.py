@@ -5,10 +5,10 @@ from qtpy.QtCore import Qt
 
 
 class Properties(object):
-    ''' Stores global properties for GRC. '''
+    """Stores global properties for GRC."""
 
-    APP_NAME = 'grc'
-    DEFAULT_LANGUAGE = ['en_US']
+    APP_NAME = "grc"
+    DEFAULT_LANGUAGE = ["en_US"]
 
     def __init__(self, argv):
         self.argv = argv
@@ -22,39 +22,41 @@ class Properties(object):
 
 
 class Paths(object):
-    ''' Initialize GRC paths relative to current file. '''
+    """Initialize GRC paths relative to current file."""
 
     # Flow graph
     DEFAULT_FILE = os.getcwd()
-    IMAGE_FILE_EXTENSION = '.png'
-    TEXT_FILE_EXTENSION = '.txt'
-    NEW_FLOGRAPH_TITLE = 'untitled'
-    SEPARATORS = {'/': ':', '\\': ';'}[os.path.sep]
+    IMAGE_FILE_EXTENSION = ".png"
+    TEXT_FILE_EXTENSION = ".txt"
+    NEW_FLOGRAPH_TITLE = "untitled"
+    SEPARATORS = {"/": ":", "\\": ";"}[os.path.sep]
 
     # Setup all the install paths
     p = os.path
-    PREFERENCES = p.expanduser('~/.grc')
-    INSTALL = p.abspath(p.join(p.dirname(__file__), '..'))
-    RESOURCES = p.join(INSTALL, 'gui_qt/resources')
-    LANGUAGE = p.join(INSTALL, 'gui_qt/resources/language')
-    LOGO = p.join(INSTALL, 'gui_qt/resources/logo')
-    ICON = p.join(LOGO, 'gnuradio_logo_icon-square.png')
-    AVAILABLE_PREFS_YML = p.join(RESOURCES, 'available_preferences.yml')
+    PREFERENCES = p.expanduser("~/.grc")
+    INSTALL = p.abspath(p.join(p.dirname(__file__), ".."))
+    RESOURCES = p.join(INSTALL, "gui_qt/resources")
+    LANGUAGE = p.join(INSTALL, "gui_qt/resources/language")
+    LOGO = p.join(INSTALL, "gui_qt/resources/logo")
+    ICON = p.join(LOGO, "gnuradio_logo_icon-square.png")
+    AVAILABLE_PREFS_YML = p.join(RESOURCES, "available_preferences.yml")
 
     # Model Paths
-    MODEL = p.join(INSTALL, 'model')
-    BLOCK_TREE_DTD = p.join(MODEL, 'block_tree.dtd')
-    FLOW_GRAPH_DTD = p.join(MODEL, 'flow_graph.dtd')
-    FLOW_GRAPH_TEMPLATE = p.join(MODEL, 'flow_graph.tmpl')
-    DEFAULT_FLOW_GRAPH = os.path.join(MODEL, 'default_flow_graph.grc')
+    MODEL = p.join(INSTALL, "model")
+    BLOCK_TREE_DTD = p.join(MODEL, "block_tree.dtd")
+    FLOW_GRAPH_DTD = p.join(MODEL, "flow_graph.dtd")
+    FLOW_GRAPH_TEMPLATE = p.join(MODEL, "flow_graph.tmpl")
+    DEFAULT_FLOW_GRAPH = os.path.join(MODEL, "default_flow_graph.grc")
 
     # File creation modes
-    HIER_BLOCK_FILE_MODE = stat.S_IRUSR | stat.S_IWUSR | stat.S_IWGRP | stat.S_IROTH | stat.S_IRGRP
+    HIER_BLOCK_FILE_MODE = (
+        stat.S_IRUSR | stat.S_IWUSR | stat.S_IWGRP | stat.S_IROTH | stat.S_IRGRP
+    )
     TOP_BLOCK_FILE_MODE = HIER_BLOCK_FILE_MODE | stat.S_IXUSR | stat.S_IXGRP
 
     # Setup paths
     # FIXME: this should use ..main.get_config_directory() and get_state_directory(), probably.
-    '''
+    """
     HIER_BLOCKS_LIB_DIR = os.environ.get('GRC_HIER_PATH',
                                          os.path.expanduser('~/.grc_gnuradio'))
     PREFS_FILE = os.environ.get('GRC_PREFS_PATH', os.path.join(os.path.expanduser('~/.grc')))
@@ -65,18 +67,18 @@ class Paths(object):
             _gr_prefs.get_string('grc', 'global_blocks_path', ''),
         ]).split(PATH_SEP),
     ) + [HIER_BLOCKS_LIB_DIR]
-    '''
+    """
 
 
 class System(object):
-    ''' System specific properties '''
+    """System specific properties"""
 
-    OS = 'Unknown'
-    #XTERM_EXECUTABLE = _gr_prefs.get_string('grc', 'xterm_executable', 'xterm')
+    OS = "Unknown"
+    # XTERM_EXECUTABLE = _gr_prefs.get_string('grc', 'xterm_executable', 'xterm')
 
 
 class Window(object):
-    ''' Properties for the main window '''
+    """Properties for the main window"""
 
     # Default window properties
     MIN_WINDOW_WIDTH = 600
@@ -101,8 +103,8 @@ class Window(object):
     DEFAULT_BLOCKS_WINDOW_WIDTH = 100
     DEFAULT_CONSOLE_WINDOW_WIDTH = 100
 
-    DEFAULT_PARAM_TAB = 'General'
-    ADVANCED_PARAM_TAB = 'Advanced'
+    DEFAULT_PARAM_TAB = "General"
+    ADVANCED_PARAM_TAB = "Advanced"
 
     CONSOLE_DOCK_LOCATION = Qt.BottomDockWidgetArea
     BLOCK_LIBRARY_DOCK_LOCATION = Qt.LeftDockWidgetArea
@@ -119,18 +121,18 @@ class Window(object):
         VIEW = "view"
         BUILD = "build"
         TOOLS = "tools"
-        #PLUGINS = "plugins"
+        # PLUGINS = "plugins"
         HELP = "help"
 
 
 class Flowgraph(object):
-    ''' Flow graph specific properites '''
+    """Flow graph specific properites"""
 
     # File format
     FILE_FORMAT_VERSION = 1
 
     # Fonts
-    FONT_FAMILY = 'Sans'
+    FONT_FAMILY = "Sans"
     FONT_SIZE = 8
     BLOCK_FONT = "%s %f" % (FONT_FAMILY, FONT_SIZE)
     PORT_FONT = BLOCK_FONT
@@ -140,7 +142,7 @@ class Flowgraph(object):
     STATE_CACHE_SIZE = 42
 
     # Shared targets for drag and drop of blocks
-    #DND_TARGETS = [('STRING', gtk.TARGET_SAME_APP, 0)]
+    # DND_TARGETS = [('STRING', gtk.TARGET_SAME_APP, 0)]
 
     # Label constraints
     LABEL_SEPARATION = 3
@@ -172,85 +174,89 @@ class Flowgraph(object):
 
 
 class Colors(object):
-    ''' Color definitions '''
+    """Color definitions"""
 
     # Graphics stuff
-    HIGHLIGHT = '#00FFFF'
-    BORDER = 'black'
-    MISSING_BLOCK_BACKGROUND = '#FFF2F2'
-    MISSING_BLOCK_BORDER = 'red'
-    PARAM_ENTRY_TEXT = 'black'
-    ENTRYENUM_CUSTOM = '#EEEEEE'
-    FLOWGRAPH_BACKGROUND = '#FFF9FF'
-    BLOCK_ENABLED = '#F1ECFF'
-    BLOCK_DISABLED = '#CCCCCC'
-    CONNECTION_ENABLED = 'black'
-    CONNECTION_DISABLED = '#999999'
-    CONNECTION_ERROR = 'red'
+    HIGHLIGHT = "#00FFFF"
+    BORDER = "black"
+    MISSING_BLOCK_BACKGROUND = "#FFF2F2"
+    MISSING_BLOCK_BORDER = "red"
+    PARAM_ENTRY_TEXT = "black"
+    ENTRYENUM_CUSTOM = "#EEEEEE"
+    FLOWGRAPH_BACKGROUND = "#FFF9FF"
+    BLOCK_ENABLED = "#F1ECFF"
+    BLOCK_DISABLED = "#CCCCCC"
+    CONNECTION_ENABLED = "black"
+    CONNECTION_DISABLED = "#999999"
+    CONNECTION_ERROR = "red"
 
     # Alias Colors
-    COMPLEX = '#3399FF'
-    FLOAT = '#FF8C69'
-    INT = '#00FF99'
-    SHORT = '#FFFF66'
-    BYTE = '#FF66FF'
+    COMPLEX = "#3399FF"
+    FLOAT = "#FF8C69"
+    INT = "#00FF99"
+    SHORT = "#FFFF66"
+    BYTE = "#FF66FF"
 
     # Type Colors
-    COMPLEX_FLOAT_64 = '#CC8C69'
-    COMPLEX_FLOAT_32 = '#3399FF'
-    COMPLEX_INTEGER_64 = '#66CC00'
-    COMPLEX_INTEGER_32 = '#33cc66'
-    COMPLEX_INTEGER_16 = '#cccc00'
-    COMPLEX_INTEGER_8 = '#cc00cc'
-    FLOAT_64 = '#66CCCC'
-    FLOAT_32 = '#FF8C69'
-    INTEGER_64 = '#99FF33'
-    INTEGER_32 = '#00FF99'
-    INTEGER_16 = '#FFFF66'
-    INTEGER_8 = '#FF66FF'
-    MESSAGE_QUEUE = '#777777'
-    ASYNC_MESSAGE = '#C0C0C0'
-    BUS_CONNECTION = '#FFFFFF'
-    WILDCARD = '#FFFFFF'
+    COMPLEX_FLOAT_64 = "#CC8C69"
+    COMPLEX_FLOAT_32 = "#3399FF"
+    COMPLEX_INTEGER_64 = "#66CC00"
+    COMPLEX_INTEGER_32 = "#33cc66"
+    COMPLEX_INTEGER_16 = "#cccc00"
+    COMPLEX_INTEGER_8 = "#cc00cc"
+    FLOAT_64 = "#66CCCC"
+    FLOAT_32 = "#FF8C69"
+    INTEGER_64 = "#99FF33"
+    INTEGER_32 = "#00FF99"
+    INTEGER_16 = "#FFFF66"
+    INTEGER_8 = "#FF66FF"
+    MESSAGE_QUEUE = "#777777"
+    ASYNC_MESSAGE = "#C0C0C0"
+    BUS_CONNECTION = "#FFFFFF"
+    WILDCARD = "#FFFFFF"
 
-    COMPLEX_VECTOR = '#3399AA'
-    FLOAT_VECTOR = '#CC8C69'
-    INT_VECTOR = '#00CC99'
-    SHORT_VECTOR = '#CCCC33'
-    BYTE_VECTOR = '#CC66CC'
-    ID = '#DDDDDD'
-    WILDCARD = '#FFFFFF'
-    MSG = '#777777'
+    COMPLEX_VECTOR = "#3399AA"
+    FLOAT_VECTOR = "#CC8C69"
+    INT_VECTOR = "#00CC99"
+    SHORT_VECTOR = "#CCCC33"
+    BYTE_VECTOR = "#CC66CC"
+    ID = "#DDDDDD"
+    WILDCARD = "#FFFFFF"
+    MSG = "#777777"
 
 
 class Types(object):
-    ''' Setup types then map them to the conversion dictionaries '''
+    """Setup types then map them to the conversion dictionaries"""
 
     CORE_TYPES = {  # Key: (Size, Color, Name)
-        'fc64': (16, Colors.COMPLEX_FLOAT_64, 'Complex Float 64'),
-        'fc32': (8, Colors.COMPLEX_FLOAT_32, 'Complex Float 32'),
-        'sc64': (16, Colors.COMPLEX_INTEGER_64, 'Complex Integer 64'),
-        'sc32': (8, Colors.COMPLEX_INTEGER_32, 'Complex Integer 32'),
-        'sc16': (4, Colors.COMPLEX_INTEGER_16, 'Complex Integer 16'),
-        'sc8': (2, Colors.COMPLEX_INTEGER_8, 'Complex Integer 8',),
-        'f64': (8, Colors.FLOAT_64, 'Float 64'),
-        'f32': (4, Colors.FLOAT_32, 'Float 32'),
-        's64': (8, Colors.INTEGER_64, 'Integer 64'),
-        's32': (4, Colors.INTEGER_32, 'Integer 32'),
-        's16': (2, Colors.INTEGER_16, 'Integer 16'),
-        's8': (1, Colors.INTEGER_8, 'Integer 8'),
-        'msg': (0, Colors.MESSAGE_QUEUE, 'Message Queue'),
-        'message': (0, Colors.ASYNC_MESSAGE, 'Async Message'),
-        'bus': (0, Colors.BUS_CONNECTION, 'Bus Connection'),
-        '': (0, Colors.WILDCARD, 'Wildcard')
+        "fc64": (16, Colors.COMPLEX_FLOAT_64, "Complex Float 64"),
+        "fc32": (8, Colors.COMPLEX_FLOAT_32, "Complex Float 32"),
+        "sc64": (16, Colors.COMPLEX_INTEGER_64, "Complex Integer 64"),
+        "sc32": (8, Colors.COMPLEX_INTEGER_32, "Complex Integer 32"),
+        "sc16": (4, Colors.COMPLEX_INTEGER_16, "Complex Integer 16"),
+        "sc8": (
+            2,
+            Colors.COMPLEX_INTEGER_8,
+            "Complex Integer 8",
+        ),
+        "f64": (8, Colors.FLOAT_64, "Float 64"),
+        "f32": (4, Colors.FLOAT_32, "Float 32"),
+        "s64": (8, Colors.INTEGER_64, "Integer 64"),
+        "s32": (4, Colors.INTEGER_32, "Integer 32"),
+        "s16": (2, Colors.INTEGER_16, "Integer 16"),
+        "s8": (1, Colors.INTEGER_8, "Integer 8"),
+        "msg": (0, Colors.MESSAGE_QUEUE, "Message Queue"),
+        "message": (0, Colors.ASYNC_MESSAGE, "Async Message"),
+        "bus": (0, Colors.BUS_CONNECTION, "Bus Connection"),
+        "": (0, Colors.WILDCARD, "Wildcard"),
     }
 
     ALIAS_TYPES = {
-        'complex': (8, Colors.COMPLEX),
-        'float': (4, Colors.FLOAT),
-        'int': (4, Colors.INT),
-        'short': (2, Colors.SHORT),
-        'byte': (1, Colors.BYTE),
+        "complex": (8, Colors.COMPLEX),
+        "float": (4, Colors.FLOAT),
+        "int": (4, Colors.INT),
+        "short": (2, Colors.SHORT),
+        "byte": (1, Colors.BYTE),
     }
 
     # Setup conversion dictionaries

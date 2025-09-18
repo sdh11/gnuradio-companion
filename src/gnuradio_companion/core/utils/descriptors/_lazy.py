@@ -48,6 +48,8 @@ class lazy_property:
         value = self.func(instance)
         setattr(instance, self.func.__name__, value)
         return value
+
+
 # pylint: enable=too-few-public-methods,invalid-name
 
 
@@ -60,4 +62,5 @@ def nop_write(prop):
 
     def nop(self, value):
         pass
+
     return prop.setter(nop)
