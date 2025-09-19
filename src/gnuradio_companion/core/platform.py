@@ -10,6 +10,8 @@ from collections import namedtuple
 from collections import ChainMap
 import os
 import logging
+import pathlib
+
 from itertools import chain
 from typing import Type
 
@@ -200,7 +202,12 @@ class Platform(Element):
 
     def _iter_files_in_block_path(self, path=None, ext="yml"):
         """Iterator for block descriptions and category trees"""
-        for entry in path or self.config.block_paths:
+        builtin = pathlib.Path(__file__).parent.parent / "blocks"
+        all_paths = self.config.block_paths[:]
+        all_paths.append(builtin)
+
+        for entry in path or all_paths:
+            print(entry)
             if os.path.isfile(entry):
                 yield entry
             elif os.path.isdir(entry):
